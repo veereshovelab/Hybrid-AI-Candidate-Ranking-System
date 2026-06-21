@@ -25,10 +25,7 @@ class CandidateRanker:
         Returns:
             List[Dict[str, Any]]: List of top-K candidates with scores, sub-scores, and flags.
         """
-        # Min-heap elements will be tuples: (final_score, candidate_id, candidate_evaluated_dict)
-        # We use candidate_id as the tie-breaker to prevent Python from comparing dicts.
-        heap: List[Tuple[float, str, Dict[str, Any]]] = []
-        
+        evaluated_candidates = []
         processed_count = 0
         
         for candidate in candidate_stream:
@@ -46,16 +43,7 @@ class CandidateRanker:
                 "flags": flags,
                 "raw_profile": candidate
             }
-            
-            # Heap logic
-            if len(heap) < self.top_k:
-                heapq.heappush(heap, (final_score, candidate_id, eval_data))
-            else:
-                # Compare with current minimum in the top K
-                min_score = heap[0][0]
-                if final_score > min_score:
-                    # Pop the lowest candidate, push the new higher candidate
-                    heapq.heappushpop(heap, (final_score, candidate_id, eval_data))
+            evaluated_candidates.append(eval_data)
             
             # Periodically log progress for huge files
             if processed_count % 10000 == 0:
@@ -63,13 +51,8 @@ class CandidateRanker:
 
         logger.info(f"Finished evaluation. Scored {processed_count} candidates in total.")
         
-        # Extract candidates from the heap and sort them descending
-        ranked_list = []
-        while heap:
-            _, _, eval_data = heapq.heappop(heap)
-            ranked_list.append(eval_data)
-            
-        # Since heappop yields in ascending order, we reverse the list
-        ranked_list.reverse()
+        # Sort: score descending, then candidate_id ascending (alphabetically)
+        evaluated_candidates.sort(key=lambda x: (-x["final_score"], x["candidate_id"]))
         
-        return ranked_list
+        # Return only the top K
+        return evaluated_candidates[:self.top_k]

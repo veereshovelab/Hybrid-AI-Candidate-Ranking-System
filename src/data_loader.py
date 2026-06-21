@@ -122,8 +122,16 @@ class CandidateLoader(BaseCandidateLoader):
         if "profile" not in candidate or not isinstance(candidate["profile"], dict):
             candidate["profile"] = {}
             
+        # Ensure career history list exists
+        if "career_history" not in candidate or not isinstance(candidate["career_history"], list):
+            candidate["career_history"] = []
+
         # Ensure skills list exists
         if "skills" not in candidate or not isinstance(candidate["skills"], list):
             candidate["skills"] = []
+
+        # Ensure redrob signals dictionary exists
+        if "redrob_signals" not in candidate or not isinstance(candidate["redrob_signals"], dict):
+            candidate["redrob_signals"] = {}
             
         return True

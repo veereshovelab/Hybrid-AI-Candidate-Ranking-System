@@ -115,13 +115,8 @@ def main():
     
     csv_headers = [
         "candidate_id",
-        "final_score",
-        "skill_match_score",
-        "experience_match_score",
-        "career_relevance_score",
-        "behavioral_score",
-        "penalties_deducted",
-        "flags_triggered",
+        "rank",
+        "score",
         "reasoning"
     ]
     
@@ -133,13 +128,8 @@ def main():
             for rank_idx, eval_data in enumerate(top_candidates, start=1):
                 writer.writerow([
                     eval_data["candidate_id"],
+                    rank_idx,
                     eval_data["final_score"],
-                    eval_data["sub_scores"]["skill_match"],
-                    eval_data["sub_scores"]["experience_match"],
-                    eval_data["sub_scores"]["career_relevance"],
-                    eval_data["sub_scores"]["behavioral_score"],
-                    eval_data["sub_scores"]["penalty_total"],
-                    ",".join(eval_data["flags"]),
                     eval_data["reasoning"]
                 ])
                 

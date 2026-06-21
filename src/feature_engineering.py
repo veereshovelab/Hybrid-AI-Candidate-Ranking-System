@@ -146,12 +146,15 @@ class CandidateFeatureExtractor:
     """Extracts, standardizes and structures candidate attributes for scoring."""
     
     @staticmethod
-    def extract_skills(candidate: Dict[str, Any]) -> Dict[str, int]:
+    def extract_skills(candidate: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         """
         Standardizes candidate skills into a dictionary mapping skill names (normalized)
-        to experience in months (or a default of 12 months if unspecified).
+        to a details dict containing duration_months, proficiency, endorsements, and assessment_score.
         """
         raw_skills = candidate.get("skills", [])
+        signals = candidate.get("redrob_signals", {})
+        assessment_scores = signals.get("skill_assessment_scores", {})
+        
         standardized_skills = {}
         
         # Total experience in years to use for scaling defaults
@@ -162,13 +165,16 @@ class CandidateFeatureExtractor:
         for s in raw_skills:
             if isinstance(s, dict):
                 name = s.get("name", "")
-                # Use experience_months or convert experience_years to months
-                months = s.get("experience_months", s.get("experience_years", 0) * 12)
+                months = s.get("duration_months", s.get("experience_months", s.get("experience_years", 0) * 12))
                 if not months:
                     months = default_months
+                proficiency = str(s.get("proficiency", "intermediate")).lower()
+                endorsements = int(s.get("endorsements", 0))
             elif isinstance(s, str):
                 name = s
                 months = default_months
+                proficiency = "intermediate"
+                endorsements = 0
             else:
                 continue
                 
@@ -179,8 +185,21 @@ class CandidateFeatureExtractor:
             # Apply alias conversion
             norm_name = SKILL_ALIASES.get(norm_name, norm_name)
             
+            # Look up Redrob assessment score if available
+            assessment_score = -1.0
+            for assess_name, score in assessment_scores.items():
+                if normalize_text(assess_name) == norm_name:
+                    assessment_score = float(score)
+                    break
+            
             # Keep the maximum duration if skill listed multiple times
-            standardized_skills[norm_name] = max(standardized_skills.get(norm_name, 0), int(months))
+            if norm_name not in standardized_skills or int(months) > standardized_skills[norm_name]["duration_months"]:
+                standardized_skills[norm_name] = {
+                    "duration_months": int(months),
+                    "proficiency": proficiency,
+                    "endorsements": endorsements,
+                    "assessment_score": assessment_score
+                }
             
         return standardized_skills
 
@@ -189,9 +208,8 @@ class CandidateFeatureExtractor:
         """
         Extracts career history and calculates duration in months for each role.
         """
-        raw_history = candidate.get("experience", [])
+        raw_history = candidate.get("career_history", candidate.get("experience", []))
         if not isinstance(raw_history, list):
-            # Try parsing from "profile" or check if it's a single string
             return []
             
         processed_history = []
@@ -221,7 +239,9 @@ class CandidateFeatureExtractor:
                 "title": title,
                 "company": company,
                 "duration_months": duration,
-                "description": normalize_text(role.get("description", ""))
+                "description": normalize_text(role.get("description", "")),
+                "is_current": bool(role.get("is_current", False)),
+                "company_size": str(role.get("company_size", "11-50"))
             })
             
         return processed_history
@@ -229,29 +249,52 @@ class CandidateFeatureExtractor:
     @staticmethod
     def extract_behavioral_signals(candidate: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Extracts and normalizes behavioral metrics from the candidate profile.
+        Extracts and normalizes behavioral metrics from the candidate profile and redrob_signals.
         Fills missing values with neutral defaults.
         """
         profile = candidate.get("profile", {})
-        behavioral = candidate.get("behavioral_signals", {})
+        signals = candidate.get("redrob_signals", {})
         
-        # Supported behavioral attributes
-        recruiter_response_rate = behavioral.get("recruiter_response_rate", profile.get("recruiter_response_rate", 0.70))
-        github_activity_score = behavioral.get("github_activity_score", profile.get("github_activity_score", 0.50))
-        interview_completion_rate = behavioral.get("interview_completion_rate", profile.get("interview_completion_rate", 0.80))
-        saved_by_recruiters_30d = int(behavioral.get("saved_by_recruiters_30d", profile.get("saved_by_recruiters_30d", 2)))
-        search_appearance_30d = int(behavioral.get("search_appearance_30d", profile.get("search_appearance_30d", 15)))
+        # Stated notice period and salary expectations
+        notice_period = int(signals.get("notice_period_days", 60))
+        expected_salary = signals.get("expected_salary_range_inr_lpa", {})
+        salary_min = float(expected_salary.get("min", 15.0) if isinstance(expected_salary, dict) else 15.0)
+        salary_max = float(expected_salary.get("max", 25.0) if isinstance(expected_salary, dict) else 25.0)
         
-        # Flags
-        open_to_work = bool(behavioral.get("open_to_work_flag", profile.get("open_to_work_flag", False)))
-        willing_to_relocate = bool(behavioral.get("willing_to_relocate", profile.get("willing_to_relocate", False)))
+        # Work mode & reloc
+        preferred_work_mode = str(signals.get("preferred_work_mode", "hybrid")).lower()
+        willing_to_relocate = bool(signals.get("willing_to_relocate", False))
+        
+        # Availability & activity timestamps
+        open_to_work = bool(signals.get("open_to_work_flag", False))
+        last_active = str(signals.get("last_active_date", ""))
+        
+        # Behavioral stats
+        recruiter_response_rate = float(signals.get("recruiter_response_rate", 0.70))
+        github_activity_score = float(signals.get("github_activity_score", -1.0)) # -1 if not linked
+        interview_completion_rate = float(signals.get("interview_completion_rate", 0.80))
+        saved_by_recruiters_30d = int(signals.get("saved_by_recruiters_30d", 2))
+        search_appearance_30d = int(signals.get("search_appearance_30d", 15))
+        profile_completeness_score = float(signals.get("profile_completeness_score", 80.0))
+        
+        # Location and country from profile
+        location = normalize_text(profile.get("location", ""))
+        country = normalize_text(profile.get("country", ""))
         
         return {
-            "recruiter_response_rate": float(recruiter_response_rate),
-            "github_activity_score": float(github_activity_score),
-            "interview_completion_rate": float(interview_completion_rate),
+            "notice_period_days": notice_period,
+            "salary_min_lpa": salary_min,
+            "salary_max_lpa": salary_max,
+            "preferred_work_mode": preferred_work_mode,
+            "willing_to_relocate": willing_to_relocate,
+            "open_to_work_flag": open_to_work,
+            "last_active_date": last_active,
+            "recruiter_response_rate": recruiter_response_rate,
+            "github_activity_score": github_activity_score,
+            "interview_completion_rate": interview_completion_rate,
             "saved_by_recruiters_30d": saved_by_recruiters_30d,
             "search_appearance_30d": search_appearance_30d,
-            "open_to_work_flag": open_to_work,
-            "willing_to_relocate": willing_to_relocate
+            "profile_completeness_score": profile_completeness_score,
+            "location": location,
+            "country": country
         }
