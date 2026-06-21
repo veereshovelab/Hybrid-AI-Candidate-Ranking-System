@@ -1,0 +1,56 @@
+[
+  {
+    "candidate_id": "CAND_001",
+    "profile": {
+      "years_of_experience": 6
+    },
+    "skills": [
+      {"name": "Python"},
+      {"name": "Embeddings"},
+      {"name": "Retrieval"}
+    ]
+  },
+  {
+    "candidate_id": "CAND_002",
+    "profile": {
+      "years_of_experience": 3
+    },
+    "skills": [
+      {"name": "Python"},
+      {"name": "Machine Learning"}
+    ]
+  },
+  {
+    "candidate_id": "CAND_003",
+    "profile": {
+      "years_of_experience": 8
+    },
+    "skills": [
+      {"name": "LLM"},
+      {"name": "FAISS"},
+      {"name": "Qdrant"},
+      {"name": "Vector"}
+    ]
+  },
+  {
+    "candidate_id": "CAND_004",
+    "profile": {
+      "years_of_experience": 12
+    },
+    "skills": [
+      {"name": "Python"},
+      {"name": "Machine Learning"},
+      {"name": "Deep Learning"}
+    ]
+  },
+  {
+    "candidate_id": "CAND_005",
+    "profile": {
+      "years_of_experience": 5
+    },
+    "skills": [
+      {"name": "Java"},
+      {"name": "C++"}
+    ]
+  }
+]

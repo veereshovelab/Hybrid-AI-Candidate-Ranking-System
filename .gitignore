@@ -1,0 +1,17 @@
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large datasets & test data
+data/mock_candidates.jsonl
+data/*.jsonl
+
+# Outputs
+outputs/
+submission.csv
+
+# OS files
+.DS_Store
+Thumbs.db
