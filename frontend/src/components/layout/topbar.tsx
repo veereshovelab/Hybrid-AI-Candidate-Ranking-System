@@ -8,7 +8,7 @@ import { useCandidates } from "../../hooks/use-candidates";
 export function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { searchQuery, setSearchQuery, filteredCandidates } = useCandidates();
+  const { searchQuery, setSearchQuery, filteredCandidates, allCandidates } = useCandidates();
 
   // Determine page title based on path
   const getPageTitle = () => {
@@ -56,7 +56,7 @@ export function Topbar() {
             <span className="text-xs font-semibold text-slate-100">Senior AI Engineer JD</span>
           </div>
           <span className="text-[10px] text-muted-foreground font-mono">
-            {filteredCandidates.length} matched / 50 samples
+            {filteredCandidates.length} matched / {allCandidates.length} samples
           </span>
         </div>
         <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-semibold text-slate-300">

@@ -3,6 +3,16 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/**/*.pyd
+
+# Virtual Environments
+venv/
+backend/venv/
+.venv/
+backend/.venv/
 
 # Large datasets & test data
 data/mock_candidates.jsonl

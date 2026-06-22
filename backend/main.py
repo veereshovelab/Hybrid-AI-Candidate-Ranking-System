@@ -2,7 +2,11 @@ import os
 import csv
 import argparse
 import logging
+import sys
 from pathlib import Path
+
+# Add backend folder to sys.path to allow execution from any CWD
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from src.utils import TimerMemoryTracker
 from src.data_loader import CandidateLoader
@@ -39,7 +43,7 @@ def main():
     parser.add_argument(
         "--candidates",
         type=str,
-        default="sample_candidates.json",
+        default="data/sample_candidates_small.json",
         help="Path to candidate data file (JSON or JSONL format)"
     )
     parser.add_argument(
@@ -101,7 +105,7 @@ def main():
         except Exception as e:
             logger.error(f"Pipeline execution failed: {e}", exc_info=True)
             return
-
+ 
     elapsed_time, peak_ram = tracker.get_stats()
     
     # 3. Generate Natural Language Reasoning for top candidates

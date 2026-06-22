@@ -5,8 +5,8 @@ import { Topbar } from "../components/layout/topbar";
 import { CandidatesProvider } from "../hooks/use-candidates";
 
 export const metadata: Metadata = {
-  title: "Redrob Match - AI Candidate Discovery & Ranking",
-  description: "Hackathon-winning Candidate Discovery & Ranking SaaS platform.",
+  title: "Hybrid AI Candidate Ranking System",
+  description: "Enterprise-grade Hybrid AI Candidate Discovery & Ranking SaaS platform.",
 };
 
 export default function RootLayout({

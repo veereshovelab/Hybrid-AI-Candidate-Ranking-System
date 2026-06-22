@@ -13,6 +13,11 @@ interface CandidatesContextType {
   allCandidates: ScoredCandidate[];
   filteredCandidates: ScoredCandidate[];
   
+  // Custom dataset support
+  candidates: Candidate[];
+  setCandidates: React.Dispatch<React.SetStateAction<Candidate[]>>;
+  resetCandidates: () => void;
+
   // Search & Filter State
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -49,6 +54,9 @@ interface CandidatesContextType {
 const CandidatesContext = createContext<CandidatesContextType | undefined>(undefined);
 
 export function CandidatesProvider({ children }: { children: React.ReactNode }) {
+  // Candidate dataset state (defaults to SAMPLE_CANDIDATES)
+  const [candidates, setCandidates] = useState<Candidate[]>(SAMPLE_CANDIDATES);
+
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -70,30 +78,35 @@ export function CandidatesProvider({ children }: { children: React.ReactNode }) 
   ]);
   const [minJobExp, setMinJobExp] = useState(5);
 
+  // Reset candidates helper
+  const resetCandidates = () => {
+    setCandidates(SAMPLE_CANDIDATES);
+  };
+
   // Compute all unique skills in the dataset for filtering UI
   const availableSkills = useMemo(() => {
     const skillSet = new Set<string>();
-    SAMPLE_CANDIDATES.forEach(cand => {
+    candidates.forEach(cand => {
       cand.skills.forEach(s => {
         if (s.name) skillSet.add(s.name);
       });
     });
     return Array.from(skillSet).sort();
-  }, []);
+  }, [candidates]);
 
   // 1. Process candidate scores based on JD parameters
   const allCandidates = useMemo(() => {
     const reqSet = new Set(requiredSkills.map(s => s.toLowerCase()));
     const prefSet = new Set(preferredSkills.map(s => s.toLowerCase()));
 
-    return SAMPLE_CANDIDATES.map(cand => {
+    return candidates.map(cand => {
       const breakdown = scoreCandidate(cand, reqSet, prefSet, minJobExp);
       return {
         ...cand,
         scoreBreakdown: breakdown
       };
     });
-  }, [requiredSkills, preferredSkills, minJobExp]);
+  }, [candidates, requiredSkills, preferredSkills, minJobExp]);
 
   // 2. Apply filters to candidates
   const filteredCandidates = useMemo(() => {
@@ -183,6 +196,9 @@ export function CandidatesProvider({ children }: { children: React.ReactNode }) 
     <CandidatesContext.Provider value={{
       allCandidates,
       filteredCandidates,
+      candidates,
+      setCandidates,
+      resetCandidates,
       searchQuery,
       setSearchQuery,
       locationQuery,
