@@ -1,79 +1,32 @@
 "use client";
 
 import React, { createContext, useContext, useState, useMemo } from "react";
-import { SAMPLE_CANDIDATES, Candidate } from "../lib/sample-data";
-import { scoreCandidate, ScoreBreakdown } from "../utils/scorer";
+import { SAMPLE_CANDIDATES } from "../lib/sample-data";
+import { scoreCandidate } from "../utils/scorer";
 
-export interface ScoredCandidate extends Candidate {
-  scoreBreakdown: ScoreBreakdown;
-}
+const CandidatesContext = createContext(undefined);
 
-interface CandidatesContextType {
-  // Candidate list
-  allCandidates: ScoredCandidate[];
-  filteredCandidates: ScoredCandidate[];
-  
-  // Custom dataset support
-  candidates: Candidate[];
-  setCandidates: React.Dispatch<React.SetStateAction<Candidate[]>>;
-  resetCandidates: () => void;
-
-  // Search & Filter State
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
-  locationQuery: string;
-  setLocationQuery: (l: string) => void;
-  minExperience: number;
-  setMinExperience: (e: number) => void;
-  selectedSkills: string[];
-  toggleSkillFilter: (skill: string) => void;
-  clearSkillFilters: () => void;
-  openToWorkOnly: boolean;
-  setOpenToWorkOnly: (b: boolean) => void;
-  willingToRelocateOnly: boolean;
-  setWillingToRelocateOnly: (b: boolean) => void;
-  
-  // Scoring Criteria States (Job Description Customizer)
-  requiredSkills: string[];
-  setRequiredSkills: (skills: string[]) => void;
-  preferredSkills: string[];
-  setPreferredSkills: (skills: string[]) => void;
-  minJobExp: number;
-  setMinJobExp: (exp: number) => void;
-
-  // Sorting
-  sortBy: "score" | "experience" | "name" | "id";
-  setSortBy: (field: "score" | "experience" | "name" | "id") => void;
-  sortOrder: "asc" | "desc";
-  setSortOrder: (order: "asc" | "desc") => void;
-
-  // Available skills in the entire pool (for filter list)
-  availableSkills: string[];
-}
-
-const CandidatesContext = createContext<CandidatesContextType | undefined>(undefined);
-
-export function CandidatesProvider({ children }: { children: React.ReactNode }) {
+export function CandidatesProvider({ children }) {
   // Candidate dataset state (defaults to SAMPLE_CANDIDATES)
-  const [candidates, setCandidates] = useState<Candidate[]>(SAMPLE_CANDIDATES);
+  const [candidates, setCandidates] = useState(SAMPLE_CANDIDATES);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [minExperience, setMinExperience] = useState(0);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const [openToWorkOnly, setOpenToWorkOnly] = useState(false);
   const [willingToRelocateOnly, setWillingToRelocateOnly] = useState(false);
 
   // Sorting states
-  const [sortBy, setSortBy] = useState<"score" | "experience" | "name" | "id">("score");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState("score");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   // Dynamic JD Scoring Parameters (defaults match the challenge constraints)
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([
+  const [requiredSkills, setRequiredSkills] = useState([
     "python", "nlp", "pytorch", "llm", "machine learning"
   ]);
-  const [preferredSkills, setPreferredSkills] = useState<string[]>([
+  const [preferredSkills, setPreferredSkills] = useState([
     "vector", "fine-tuning", "scikit-learn"
   ]);
   const [minJobExp, setMinJobExp] = useState(5);
@@ -85,7 +38,7 @@ export function CandidatesProvider({ children }: { children: React.ReactNode }) 
 
   // Compute all unique skills in the dataset for filtering UI
   const availableSkills = useMemo(() => {
-    const skillSet = new Set<string>();
+    const skillSet = new Set();
     candidates.forEach(cand => {
       cand.skills.forEach(s => {
         if (s.name) skillSet.add(s.name);
@@ -182,7 +135,7 @@ export function CandidatesProvider({ children }: { children: React.ReactNode }) 
     return result;
   }, [allCandidates, searchQuery, locationQuery, minExperience, selectedSkills, openToWorkOnly, willingToRelocateOnly, sortBy, sortOrder]);
 
-  const toggleSkillFilter = (skill: string) => {
+  const toggleSkillFilter = (skill) => {
     setSelectedSkills(prev => 
       prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
     );

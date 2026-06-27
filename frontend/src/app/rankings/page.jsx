@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   DollarSign
 } from "lucide-react";
-import { useCandidates, ScoredCandidate } from "../../hooks/use-candidates";
+import { useCandidates } from "../../hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -67,7 +67,7 @@ export default function Rankings() {
   };
 
   // Toggle sorting
-  const handleSort = (field: "score" | "experience" | "name" | "id") => {
+  const handleSort = (field) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "desc" ? "asc" : "desc");
     } else {

@@ -1,17 +1,12 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "link";
-  size?: "sm" | "md" | "lg" | "icon";
-}
-
 export function Button({
   className,
   variant = "primary",
   size = "md",
   ...props
-}: ButtonProps) {
+}) {
   const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
   
   const variants = {

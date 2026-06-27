@@ -1,17 +1,12 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ScoredCandidate } from "../../hooks/use-candidates";
 
-interface FunnelChartProps {
-  candidates: ScoredCandidate[];
-}
-
-export function FunnelChart({ candidates }: FunnelChartProps) {
+export function FunnelChart({ candidates }) {
   // Compute stages based on candidate filters & scores
   const funnelData = useMemo(() => {
     const totalCount = 100000; // Total challenge size
-    const analyzedCount = candidates.length; // Active representative sample
+    const analyzedCount = candidates.length || 1; // Active representative sample, fallback to 1 to avoid division by zero
     const passedBasicRules = candidates.filter(c => c.scoreBreakdown.penalty_total === 0).length;
     const passedThreshold = candidates.filter(c => c.scoreBreakdown.final_score >= 60).length;
     const topShortlisted = candidates.filter(c => c.scoreBreakdown.final_score >= 80).length;
@@ -35,9 +30,12 @@ export function FunnelChart({ candidates }: FunnelChartProps) {
       <div className="flex flex-col space-y-3">
         {funnelData.map((stage, idx) => {
           // calculate conversion rate from previous stage
+          const prevCount = funnelData[idx-1]?.count || 0;
           const conversionRate = idx === 0 
             ? "100%" 
-            : `${((stage.count / funnelData[idx-1].count) * 100).toFixed(1)}%`;
+            : prevCount === 0 
+            ? "0.0%" 
+            : `${((stage.count / prevCount) * 100).toFixed(1)}%`;
 
           return (
             <div key={idx} className="relative flex items-center justify-between group">

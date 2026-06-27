@@ -13,7 +13,7 @@ import {
   Sliders,
   DollarSign
 } from "lucide-react";
-import { useCandidates, ScoredCandidate } from "../../hooks/use-candidates";
+import { useCandidates } from "../../hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -25,19 +25,26 @@ function ExplainabilityContent() {
   const candidateParam = searchParams.get("candidate");
 
   const { allCandidates, requiredSkills, preferredSkills, minJobExp } = useCandidates();
-  const [selectedId, setSelectedId] = useState<string>("");
 
-  // Populate first candidate as fallback or load from search query parameters
-  useEffect(() => {
+  // Calculate initial ID
+  const initialId = useMemo(() => {
     if (candidateParam && allCandidates.some(c => c.candidate_id === candidateParam)) {
-      setSelectedId(candidateParam);
-    } else if (allCandidates.length > 0) {
-      setSelectedId(allCandidates[0].candidate_id);
+      return candidateParam;
     }
+    return allCandidates[0] ? allCandidates[0].candidate_id : "";
   }, [allCandidates, candidateParam]);
 
+  const [selectedId, setSelectedId] = useState(initialId);
+
+  // Sync state with url/context updates
+  const [prevInitialId, setPrevInitialId] = useState(initialId);
+  if (initialId !== prevInitialId) {
+    setSelectedId(initialId);
+    setPrevInitialId(initialId);
+  }
+
   // Handle dropdown selection change
-  const handleCandidateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCandidateChange = (e) => {
     const id = e.target.value;
     setSelectedId(id);
     // Sync query parameters for bookmarkable URL
@@ -180,7 +187,7 @@ function ExplainabilityContent() {
                     <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
                       <AlertTriangle className="h-4 w-4" /> Automated Penalty Deduction
                     </span>
-                    <span className="font-mono font-bold">-{scoreBreakdown.penalty_total.toFixed(1)} Points</span>
+                    <span className="font-mono font-bold font-bold">-{scoreBreakdown.penalty_total.toFixed(1)} Points</span>
                   </div>
                   <p className="text-[10px] text-red-300/80 leading-relaxed font-mono">
                     Candidate failed safety filters or triggered honeypots. Deducted directly from weighted score.

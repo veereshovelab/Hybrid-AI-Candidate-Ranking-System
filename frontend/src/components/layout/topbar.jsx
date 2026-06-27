@@ -20,7 +20,7 @@ export function Topbar() {
     return "AI Recruitment Hub";
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     // If user is typing in search but is not on rankings page, redirect to rankings page so they see results
     if (pathname !== "/rankings" && !pathname.startsWith("/candidates")) {

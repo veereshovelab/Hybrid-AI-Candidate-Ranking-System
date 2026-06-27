@@ -1,16 +1,11 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ScoredCandidate } from "../../hooks/use-candidates";
 
-interface SkillsBarChartProps {
-  candidates: ScoredCandidate[];
-}
-
-export function SkillsBarChart({ candidates }: SkillsBarChartProps) {
+export function SkillsBarChart({ candidates }) {
   // Compute top skills and their frequency counts
   const topSkills = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const counts = {};
     candidates.forEach(cand => {
       cand.skills.forEach(s => {
         const name = s.name;

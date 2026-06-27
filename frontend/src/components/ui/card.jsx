@@ -1,11 +1,7 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  hoverEffect?: boolean;
-}
-
-export function Card({ className, hoverEffect = false, ...props }: CardProps) {
+export function Card({ className, hoverEffect = false, ...props }) {
   return (
     <div
       className={cn(
@@ -18,11 +14,11 @@ export function Card({ className, hoverEffect = false, ...props }: CardProps) {
   );
 }
 
-export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({ className, ...props }) {
   return <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />;
 }
 
-export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle({ className, ...props }) {
   return (
     <h3
       className={cn("text-lg font-semibold leading-none tracking-tight text-slate-100", className)}
@@ -31,14 +27,14 @@ export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHead
   );
 }
 
-export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+export function CardDescription({ className, ...props }) {
   return <p className={cn("text-sm text-muted-foreground", className)} {...props} />;
 }
 
-export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardContent({ className, ...props }) {
   return <div className={cn("p-6 pt-0", className)} {...props} />;
 }
 
-export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardFooter({ className, ...props }) {
   return <div className={cn("flex items-center p-6 pt-0 border-t border-border/40 mt-4", className)} {...props} />;
 }

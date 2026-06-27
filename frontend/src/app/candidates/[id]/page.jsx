@@ -19,13 +19,6 @@ import {
   Sparkles,
   BookOpen
 } from "lucide-react";
-
-const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-    <path d="M9 18c-4.51 2-5-2-7-2" />
-  </svg>
-);
 import { useCandidates } from "../../../hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
@@ -33,7 +26,14 @@ import { Button } from "../../../components/ui/button";
 import { Progress } from "../../../components/ui/progress";
 import { CircularScore } from "../../../components/visual/circular-score";
 
-export default function CandidateDetail({ params }: { params: Promise<{ id: string }> }) {
+const GithubIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+    <path d="M9 18c-4.51 2-5-2-7-2" />
+  </svg>
+);
+
+export default function CandidateDetail({ params }) {
   const router = useRouter();
   const resolvedParams = use(params);
   const candidateId = resolvedParams.id;
@@ -45,25 +45,12 @@ export default function CandidateDetail({ params }: { params: Promise<{ id: stri
     return allCandidates.find(c => c.candidate_id === candidateId);
   }, [allCandidates, candidateId]);
 
-  if (!candidate) {
-    return (
-      <div className="p-8 text-center text-muted-foreground max-w-xl mx-auto space-y-4">
-        <ShieldAlert className="h-12 w-12 text-red-500 mx-auto" />
-        <h3 className="text-lg font-bold text-slate-200">Candidate Not Found</h3>
-        <p className="text-sm">The requested candidate ID {candidateId} does not exist in the active pool.</p>
-        <Link href="/rankings">
-          <Button variant="primary">Return to rankings</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  const { profile, career_history, education, skills, certifications, redrob_signals, scoreBreakdown } = candidate;
-
   // Generate dynamic AI reasoning highlights based on candidate scores
   const aiReasoning = useMemo(() => {
-    const highlights: string[] = [];
-    const concerns: string[] = [];
+    if (!candidate) return { highlights: [], concerns: [] };
+    const { profile, skills, redrob_signals, scoreBreakdown } = candidate;
+    const highlights = [];
+    const concerns = [];
 
     // Experience Check
     if (profile.years_of_experience >= 6 && profile.years_of_experience <= 8) {
@@ -110,7 +97,22 @@ export default function CandidateDetail({ params }: { params: Promise<{ id: stri
     }
 
     return { highlights, concerns };
-  }, [candidate, scoreBreakdown, profile, skills, redrob_signals]);
+  }, [candidate]);
+
+  if (!candidate) {
+    return (
+      <div className="p-8 text-center text-muted-foreground max-w-xl mx-auto space-y-4">
+        <ShieldAlert className="h-12 w-12 text-red-500 mx-auto" />
+        <h3 className="text-lg font-bold text-slate-200">Candidate Not Found</h3>
+        <p className="text-sm">The requested candidate ID {candidateId} does not exist in the active pool.</p>
+        <Link href="/rankings">
+          <Button variant="primary">Return to rankings</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const { profile, career_history, education, skills, certifications, redrob_signals, scoreBreakdown } = candidate;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
@@ -316,7 +318,7 @@ export default function CandidateDetail({ params }: { params: Promise<{ id: stri
                   advanced: "primary",
                   intermediate: "warning",
                   beginner: "secondary"
-                } as const;
+                };
 
                 return (
                   <div key={idx} className="flex items-center justify-between border-b border-border/30 pb-2.5 last:border-b-0 last:pb-0">
@@ -326,7 +328,7 @@ export default function CandidateDetail({ params }: { params: Promise<{ id: stri
                         {skill.duration_months} months • {skill.endorsements} endorsements
                       </span>
                     </div>
-                    <Badge variant={colors[skill.proficiency.toLowerCase() as keyof typeof colors] || "secondary"} className="text-[10px] uppercase font-bold tracking-wider">
+                    <Badge variant={colors[skill.proficiency.toLowerCase()] || "secondary"} className="text-[10px] uppercase font-bold tracking-wider">
                       {skill.proficiency}
                     </Badge>
                   </div>

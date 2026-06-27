@@ -31,13 +31,17 @@ def normalize_text(text: Optional[str]) -> str:
     return text
 
 
+# Fixed evaluation baseline date (2026-06-21) to match the frontend and keep scores consistent over time
+EVALUATION_BASELINE = datetime(2026, 6, 21)
+
+
 def parse_date(date_str: str) -> datetime:
     """
     Attempts to parse date strings of various common formats.
-    Returns datetime object or current date if 'Present' / 'Current'.
+    Returns datetime object or baseline date if 'Present' / 'Current'.
     """
     if not date_str or str(date_str).strip().lower() in ["present", "current", "now", "today", "active"]:
-        return datetime.now()
+        return EVALUATION_BASELINE
         
     date_str = str(date_str).strip()
     
@@ -67,9 +71,9 @@ def parse_date(date_str: str) -> datetime:
         except ValueError:
             pass
             
-    # Default fallback
-    logger.debug(f"Could not parse date string: '{date_str}'. Falling back to current date.")
-    return datetime.now()
+    # Default fallback to baseline date
+    logger.debug(f"Could not parse date string: '{date_str}'. Falling back to baseline date.")
+    return EVALUATION_BASELINE
 
 
 def calculate_months_between(start_date_str: str, end_date_str: Optional[str]) -> int:
@@ -78,7 +82,7 @@ def calculate_months_between(start_date_str: str, end_date_str: Optional[str]) -
     """
     try:
         start_dt = parse_date(start_date_str)
-        end_dt = parse_date(end_date_str) if end_date_str else datetime.now()
+        end_dt = parse_date(end_date_str) if end_date_str else EVALUATION_BASELINE
         
         # Calculate difference in months
         diff_months = (end_dt.year - start_dt.year) * 12 + (end_dt.month - start_dt.month)
@@ -97,6 +101,8 @@ class TimerMemoryTracker:
         self.start_time = 0.0
         self.end_time = 0.0
         self.process = None
+        self.elapsed = 0.0
+        self.peak_mb = 0.0
 
     def __enter__(self):
         self.start_time = time.perf_counter()
@@ -110,7 +116,7 @@ class TimerMemoryTracker:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end_time = time.perf_counter()
-        elapsed_time = self.end_time - self.start_time
+        self.elapsed = self.end_time - self.start_time
         
         _, peak_tracemalloc = tracemalloc.get_traced_memory()
         tracemalloc.stop()
@@ -123,20 +129,24 @@ class TimerMemoryTracker:
             mem_diff = peak_tracemalloc
             peak_rss = peak_tracemalloc
             
-        peak_mb = peak_rss / (1024 * 1024)
+        self.peak_mb = peak_rss / (1024 * 1024)
         diff_mb = mem_diff / (1024 * 1024)
         
         logger.info(
-            f"[{self.operation_name}] Completed in {elapsed_time:.4f}s | "
-            f"Peak RAM: {peak_mb:.2f} MB (Delta: {diff_mb:+.2f} MB)"
+            f"[{self.operation_name}] Completed in {self.elapsed:.4f}s | "
+            f"Peak RAM: {self.peak_mb:.2f} MB (Delta: {diff_mb:+.2f} MB)"
         )
 
     def get_stats(self) -> Tuple[float, float]:
         """Returns (elapsed_seconds, peak_memory_mb)"""
-        elapsed = time.perf_counter() - self.start_time
-        if self.process:
-            peak = self.process.memory_info().rss / (1024 * 1024)
-        else:
-            _, peak_tracemalloc = tracemalloc.get_traced_memory()
-            peak = peak_tracemalloc / (1024 * 1024)
-        return elapsed, peak
+        if self.end_time == 0.0:
+            # If called inside context manager before exit
+            elapsed = time.perf_counter() - self.start_time
+            if self.process:
+                peak = self.process.memory_info().rss / (1024 * 1024)
+            else:
+                _, peak_tracemalloc = tracemalloc.get_traced_memory()
+                peak = peak_tracemalloc / (1024 * 1024)
+            return elapsed, peak
+        return self.elapsed, self.peak_mb
+

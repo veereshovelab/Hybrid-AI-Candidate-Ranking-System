@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useRef } from "react";
@@ -16,11 +15,10 @@ import {
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { useCandidates } from "../../hooks/use-candidates";
-import { Candidate } from "../../lib/sample-data";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef(null);
   const { candidates, setCandidates, resetCandidates } = useCandidates();
 
   const navItems = [
@@ -50,15 +48,15 @@ export function Sidebar() {
     }
   ];
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const text = event.target?.result as string;
-        let parsed: any[] = [];
+        const text = event.target?.result;
+        let parsed = [];
         
         if (file.name.endsWith(".jsonl")) {
           // Parse JSONL line by line
@@ -84,7 +82,7 @@ export function Sidebar() {
         }
 
         // Standardize fields to avoid crashes in React
-        const standardized: Candidate[] = validCandidates.map(c => {
+        const standardized = validCandidates.map(c => {
           return {
             candidate_id: String(c.candidate_id),
             profile: {
@@ -100,7 +98,7 @@ export function Sidebar() {
               current_industry: String(c.profile?.current_industry || "Technology"),
               ...c.profile
             },
-            career_history: (Array.isArray(c.career_history) ? c.career_history : []).map((h: any) => ({
+            career_history: (Array.isArray(c.career_history) ? c.career_history : []).map((h) => ({
               company: String(h?.company || ""),
               title: String(h?.title || ""),
               start_date: String(h?.start_date || ""),
@@ -111,7 +109,7 @@ export function Sidebar() {
               company_size: String(h?.company_size || "11-50"),
               description: String(h?.description || ""),
             })),
-            education: (Array.isArray(c.education) ? c.education : []).map((edu: any) => ({
+            education: (Array.isArray(c.education) ? c.education : []).map((edu) => ({
               institution: String(edu?.institution || ""),
               degree: String(edu?.degree || ""),
               field_of_study: String(edu?.field_of_study || ""),
@@ -120,7 +118,7 @@ export function Sidebar() {
               grade: String(edu?.grade || ""),
               tier: String(edu?.tier || "tier_4"),
             })),
-            skills: (Array.isArray(c.skills) ? c.skills : []).map((s: any) => ({
+            skills: (Array.isArray(c.skills) ? c.skills : []).map((s) => ({
               name: String(s?.name || ""),
               proficiency: String(s?.proficiency || "intermediate"),
               endorsements: Number(s?.endorsements || 0),
@@ -152,12 +150,12 @@ export function Sidebar() {
               linkedin_connected: Boolean(c.redrob_signals?.linkedin_connected ?? false),
               ...c.redrob_signals
             },
-            certifications: (Array.isArray(c.certifications) ? c.certifications : []).map((cert: any) => ({
+            certifications: (Array.isArray(c.certifications) ? c.certifications : []).map((cert) => ({
               name: String(cert?.name || ""),
               issuer: String(cert?.issuer || ""),
               year: Number(cert?.year || 0),
             })),
-            languages: (Array.isArray(c.languages) ? c.languages : []).map((lang: any) => ({
+            languages: (Array.isArray(c.languages) ? c.languages : []).map((lang) => ({
               language: String(lang?.language || ""),
               proficiency: String(lang?.proficiency || "intermediate"),
             })),
@@ -168,7 +166,7 @@ export function Sidebar() {
         alert(`Successfully loaded ${standardized.length} candidates!`);
       } catch (err) {
         console.error(err);
-        alert("Failed to parse file: " + (err as Error).message);
+        alert("Failed to parse file: " + err.message);
       }
     };
     reader.readAsText(file);

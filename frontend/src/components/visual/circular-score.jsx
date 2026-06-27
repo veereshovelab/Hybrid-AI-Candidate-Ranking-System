@@ -3,13 +3,7 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
-interface CircularScoreProps {
-  score: number;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}
-
-export function CircularScore({ score, size = "md", className }: CircularScoreProps) {
+export function CircularScore({ score, size = "md", className }) {
   // SVG configurations
   const sizes = {
     sm: { radius: 24, stroke: 4, textClass: "text-sm", sizeClass: "h-14 w-14" },
@@ -22,14 +16,14 @@ export function CircularScore({ score, size = "md", className }: CircularScorePr
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   // Determine score color based on thresholds
-  const getScoreColor = (val: number) => {
+  const getScoreColor = (val) => {
     if (val >= 80) return "stroke-success";
     if (val >= 60) return "stroke-primary";
     if (val >= 40) return "stroke-warning";
     return "stroke-red-500";
   };
 
-  const getScoreBg = (val: number) => {
+  const getScoreBg = (val) => {
     if (val >= 80) return "text-success bg-success/5";
     if (val >= 60) return "text-primary bg-primary/5";
     if (val >= 40) return "text-warning bg-warning/5";

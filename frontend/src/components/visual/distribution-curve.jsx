@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ScoredCandidate } from "../../hooks/use-candidates";
 
-interface DistributionCurveProps {
-  candidates: ScoredCandidate[];
-}
-
-export function DistributionCurve({ candidates }: DistributionCurveProps) {
+export function DistributionCurve({ candidates }) {
   // Aggregate candidate scores into buckets of 10 points
   const buckets = useMemo(() => {
     const counts = Array(10).fill(0);

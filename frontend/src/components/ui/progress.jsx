@@ -1,19 +1,13 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
-export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: number; // 0 to 100
-  color?: string; // Tailwind color overrides e.g. "bg-success"
-  showLabel?: boolean;
-}
-
 export function Progress({
   className,
   value,
   color = "bg-primary",
   showLabel = false,
   ...props
-}: ProgressProps) {
+}) {
   const clampedValue = Math.max(0, Math.min(100, value));
 
   return (

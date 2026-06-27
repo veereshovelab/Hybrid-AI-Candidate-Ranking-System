@@ -1,15 +1,3 @@
-import { Candidate } from "../lib/sample-data";
-
-export interface ScoreBreakdown {
-  final_score: number;
-  skill_match: number;
-  experience_match: number;
-  career_relevance: number;
-  behavioral_score: number;
-  penalty_total: number;
-  flags: string[];
-}
-
 const CONSULTING_COMPANIES = new Set([
   "tcs", "tata consultancy services", "infosys", "wipro", "accenture", 
   "cognizant", "capgemini", "mindtree", "hcl", "tech mahindra", "l&t", "cts"
@@ -20,7 +8,7 @@ const CV_SPEECH_SKILLS = new Set([
   "tts", "robotics", "ros", "object detection", "image segmentation", "yolo"
 ]);
 
-const SKILL_ALIASES: Record<string, string> = {
+const SKILL_ALIASES = {
   "tensor flow": "tensorflow",
   "tensor-flow": "tensorflow",
   "py torch": "pytorch",
@@ -42,7 +30,7 @@ const SKILL_ALIASES: Record<string, string> = {
   "finetuning": "fine-tuning",
 };
 
-function normalizeText(text: string | null | undefined): string {
+function normalizeText(text) {
   if (!text) return "";
   return text
     .toString()
@@ -53,11 +41,11 @@ function normalizeText(text: string | null | undefined): string {
 }
 
 export function scoreCandidate(
-  candidate: Candidate,
-  requiredSkills: Set<string>,
-  preferredSkills: Set<string>,
-  minExp: number = 5
-): ScoreBreakdown {
+  candidate,
+  requiredSkills,
+  preferredSkills,
+  minExp = 5
+) {
   const profile = candidate.profile;
   const rawSkills = candidate.skills;
   const history = candidate.career_history;
@@ -65,7 +53,7 @@ export function scoreCandidate(
   const yearsExp = profile.years_of_experience;
   
   // 1. Process candidate skills
-  const skills: Record<string, { duration: number; proficiency: string; endorsements: number; score: number }> = {};
+  const skills = {};
   for (const s of rawSkills) {
     const norm = SKILL_ALIASES[normalizeText(s.name)] || normalizeText(s.name);
     if (!norm) continue;
@@ -87,7 +75,7 @@ export function scoreCandidate(
   // 2. Compute Skill Match Score (0-100)
   let skillMatch = 100.0;
   if (requiredSkills.size > 0) {
-    const getMatchScore = (targetSet: Set<string>): number => {
+    const getMatchScore = (targetSet) => {
       if (targetSet.size === 0) return 1.0;
       let sum = 0.0;
       for (const skill of targetSet) {
@@ -272,7 +260,7 @@ export function scoreCandidate(
 
   // 6. Detect Suspicious Honeypot Patterns (100 pts penalty per trigger)
   let penaltyTotal = 0.0;
-  const flags: string[] = [];
+  const flags = [];
   
   // Honeypot 1: Skill duration exceeds total experience
   for (const s of rawSkills) {
@@ -290,7 +278,7 @@ export function scoreCandidate(
       flags.push(`HONEYPOT_EXPERT_0_MONTHS_${s.name.toUpperCase()}`);
     }
   }
-
+  
   // Honeypot 3: Future tech duration anomaly
   const recentTechs = ["langchain", "llamaindex", "chatgpt", "gpt-4", "qdrant"];
   for (const s of rawSkills) {
@@ -305,7 +293,7 @@ export function scoreCandidate(
 
   // Honeypot 4: Overlapping Job Timelines
   if (history.length > 1) {
-    const intervals: Array<{ start: number; end: number }> = [];
+    const intervals = [];
     history.forEach(role => {
       if (role.start_date) {
         try {
