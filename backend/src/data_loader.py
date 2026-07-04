@@ -99,39 +99,40 @@ class CandidateLoader(BaseCandidateLoader):
             logger.error(f"Unexpected error loading JSON file {file_path}: {e}")
             raise
 
-    def _validate_candidate(self, candidate: Dict[str, Any], index: int) -> bool:
-        """
-        Performs basic structure validation on the candidate object.
-        
-        Args:
-            candidate: Parsed candidate dictionary.
-            index: Line number or array index for logging purposes.
-            
-        Returns:
-            bool: True if candidate is valid, False otherwise.
-        """
-        if not isinstance(candidate, dict):
-            logger.warning(f"Candidate entry at index {index} is not a JSON object. Skipping.")
-            return False
-            
+def _validate_candidate(self, candidate: Dict[str, Any], index: int) -> bool:
+    """
+    performs basic structure validation on the candidate object,
+
+    args:
+    candidate: Parsed candiate dictionary,
+    index: Line number or arry index for logging purpose.
+
+    Returns:
+    bool: True if candidate is valid, False otherwise
+    """ 
+    if not isinstance(candidate, dict):
+        logger.warning(f"Candidate entry at index{index} is not a JSON object, skipping.")
+        return False
+
         if "candidate_id" not in candidate:
-            logger.warning(f"Candidate entry at index {index} is missing 'candidate_id'. Skipping.")
+            logger.warning(f"candidate entry at index{index} is missing 'candidate_id. skipping.")
             return False
-            
-        # Ensure profile dictionary exists
-        if "profile" not in candidate or not isinstance(candidate["profile"], dict):
-            candidate["profile"] = {}
-            
-        # Ensure career history list exists
-        if "career_history" not in candidate or not isinstance(candidate["career_history"], list):
-            candidate["career_history"] = []
 
-        # Ensure skills list exists
-        if "skills" not in candidate or not isinstance(candidate["skills"], list):
-            candidate["skills"] = []
+            #ensure profile dictionary exists 
+            if "profile" not in candidate or not isinstance(candidate["profile"], dict):
+                candidate["profile"] ={}
 
-        # Ensure redrob signals dictionary exists
-        if "redrob_signals" not in candidate or not isinstance(candidate["redrob_signals"], dict):
-            candidate["redrob_signals"] = {}
-            
-        return True
+                #Ensure profile dictionary exists
+                if "career_history" not in candidate or not isinstance(candidate["career-history"], list):
+                    candidate["career_history"] = []
+
+                    #Ensure skills dictionary exists 
+                    if "skills" not in candidate or not isinstance(candiate["skills"], list):
+                        candiate["skills"] = []
+
+                        #Ensure redrob signals dictionary exists 
+                        if "redrod " not in candidate or not isinstance(candiate["redrod_signals"], dict):
+                            candidate["redrod-signals"] = {}
+
+
+                            return True
