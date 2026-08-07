@@ -6,7 +6,9 @@ import sys
 from pathlib import Path
 
 # Add backend folder to sys.path to allow execution from any CWD
-sys.path.append(str(Path(__file__).resolve().parent))
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
 
 from src.utils import TimerMemoryTracker
 from src.data_loader import CandidateLoader
@@ -43,7 +45,7 @@ def main():
     parser.add_argument(
         "--candidates",
         type=str,
-        default="data/sample_candidates_small.json",
+        default=str(BACKEND_DIR / "data" / "sample_candidates_small.json"),
         help="Path to candidate data file (JSON or JSONL format)"
     )
     parser.add_argument(
@@ -55,7 +57,7 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="outputs/submission.csv",
+        default=str(BACKEND_DIR / "outputs" / "submission.csv"),
         help="Path to write the output CSV"
     )
     parser.add_argument(

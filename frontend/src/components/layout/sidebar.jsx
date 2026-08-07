@@ -13,8 +13,8 @@ import {
   Upload,
   RotateCcw
 } from "lucide-react";
-import { cn } from "../../utils/cn";
-import { useCandidates } from "../../hooks/use-candidates";
+import { cn } from "@/utils/cn";
+import { useCandidates } from "@/hooks/use-candidates";
 
 export function Sidebar() {
   const pathname = usePathname();

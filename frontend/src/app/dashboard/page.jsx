@@ -15,12 +15,12 @@ import {
   FileText,
   RotateCcw
 } from "lucide-react";
-import { useCandidates } from "../../hooks/use-candidates";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { DistributionCurve } from "../../components/visual/distribution-curve";
-import { SkillsBarChart } from "../../components/visual/skills-bar-chart";
+import { useCandidates } from "@/hooks/use-candidates";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DistributionCurve } from "@/components/visual/distribution-curve";
+import { SkillsBarChart } from "@/components/visual/skills-bar-chart";
 
 export default function Dashboard() {
   const { filteredCandidates, allCandidates, setCandidates, resetCandidates } = useCandidates();

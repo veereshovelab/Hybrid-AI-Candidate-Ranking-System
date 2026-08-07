@@ -11,11 +11,11 @@ import {
   Sparkles,
   Users
 } from "lucide-react";
-import { useCandidates } from "../../hooks/use-candidates";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { FunnelChart } from "../../components/visual/funnel-chart";
-import { DistributionCurve } from "../../components/visual/distribution-curve";
+import { useCandidates } from "@/hooks/use-candidates";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FunnelChart } from "@/components/visual/funnel-chart";
+import { DistributionCurve } from "@/components/visual/distribution-curve";
 
 export default function Analytics() {
   const { allCandidates } = useCandidates();

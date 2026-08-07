@@ -10,22 +10,23 @@ The repository is organized as follows:
 
 ```
 ├── backend/                  # Python candidate scoring and ranking pipeline
-│   ├── src/                  # Core modules (data loader, scorer, ranker, features)
-│   ├── main.py               # Pipeline entrypoint CLI script
+│   ├── data/                 # Datasets (schema, samples, large raw JSON/JSONL datasets)
+│   │   ├── candidate_schema.json # JSON Schema for candidate objects
+│   │   ├── sample_candidates.json # Sample candidate dataset (300 KB)
+│   │   └── sample_candidates_small.json # Tiny sample candidate dataset (5 candidates)
+│   ├── docs/                 # Specifications and reference documentation
+│   │   ├── job_description.docx  # Sample job description document
+│   │   ├── redrob_signals_doc.docx # Redrob platform signals description
+│   │   └── submission_spec.docx  # Submission criteria and file specifications
+│   ├── outputs/              # Generated submission CSV reports (git-ignored)
+│   ├── src/                  # Core modules and pipeline entrypoint
+│   │   └── main.py           # Pipeline entrypoint CLI script
+│   ├── venv/                 # Python virtual environment (git-ignored)
 │   └── requirements.txt      # Python dependencies
-├── data/                     # Datasets (schema, samples, large raw JSON/JSONL datasets)
-│   ├── candidate_schema.json # JSON Schema for candidate objects
-│   ├── sample_candidates.json # Sample candidate dataset (300 KB)
-│   └── sample_candidates_small.json # Tiny sample candidate dataset (5 candidates)
-├── docs/                     # Specifications and reference documentation
-│   ├── job_description.docx  # Sample job description document
-│   ├── redrob_signals_doc.docx # Redrob platform signals description
-│   └── submission_spec.docx  # Submission criteria and file specifications
 ├── frontend/                 # Next.js web application (dashboard & search UI)
 │   ├── src/                  # Frontend source code (app, components, hooks, lib, utils)
 │   ├── package.json          # Node dependencies and scripts
 │   └── next.config.ts        # Next.js configuration
-├── outputs/                  # Generated submission CSV reports (git-ignored)
 └── package.json              # Root package.json redirection scripts
 ```
 
@@ -70,15 +71,15 @@ pip install -r backend/requirements.txt
 With the environment activated, you can run the pipeline from the project root:
 
 ```bash
-# Run with default settings (evaluates data/sample_candidates_small.json)
-python backend/main.py
+# Run with default settings (evaluates backend/data/sample_candidates_small.json)
+python backend/src/main.py
 
-# Run on the full dataset (data/candidates.jsonl)
-python backend/main.py --candidates data/candidates.jsonl --output outputs/submission.csv
+# Run on the full dataset (backend/data/candidates.jsonl)
+python backend/src/main.py --candidates backend/data/candidates.jsonl --output backend/outputs/submission.csv
 ```
 
 #### CLI Options:
-- `--candidates`: Path to candidate data file (JSON/JSONL format, default: `data/sample_candidates_small.json`)
+- `--candidates`: Path to candidate data file (JSON/JSONL format, default: `backend/data/sample_candidates_small.json`)
 - `--jd`: Path to custom job description text file (optional)
-- `--output`: Path to write the output CSV (default: `outputs/submission.csv`)
+- `--output`: Path to write the output CSV (default: `backend/outputs/submission.csv`)
 - `--top-k`: Number of top candidates to export (default: `100`)

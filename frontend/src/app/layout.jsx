@@ -1,7 +1,7 @@
 import "./globals.css";
-import { Sidebar } from "../components/layout/sidebar";
-import { Topbar } from "../components/layout/topbar";
-import { CandidatesProvider } from "../hooks/use-candidates";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Topbar } from "@/components/layout/topbar";
+import { CandidatesProvider } from "@/hooks/use-candidates";
 
 export const metadata = {
   title: "Hybrid AI Candidate Ranking System",

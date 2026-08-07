@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Briefcase, FileSearch, Sparkles } from "lucide-react";
-import { useCandidates } from "../../hooks/use-candidates";
+import { useCandidates } from "@/hooks/use-candidates";
 
 export function Topbar() {
   const pathname = usePathname();

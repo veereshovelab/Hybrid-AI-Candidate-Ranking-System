@@ -19,12 +19,12 @@ import {
   Sparkles,
   BookOpen
 } from "lucide-react";
-import { useCandidates } from "../../../hooks/use-candidates";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../components/ui/card";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
-import { Progress } from "../../../components/ui/progress";
-import { CircularScore } from "../../../components/visual/circular-score";
+import { useCandidates } from "@/hooks/use-candidates";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { CircularScore } from "@/components/visual/circular-score";
 
 const GithubIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>

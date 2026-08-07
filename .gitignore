@@ -17,9 +17,12 @@ backend/.venv/
 # Large datasets & test data
 data/mock_candidates.jsonl
 data/*.jsonl
+backend/data/mock_candidates.jsonl
+backend/data/*.jsonl
 
 # Outputs
 outputs/
+backend/outputs/
 submission.csv
 
 # OS files

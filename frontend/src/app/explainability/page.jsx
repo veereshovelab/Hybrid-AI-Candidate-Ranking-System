@@ -13,11 +13,11 @@ import {
   Sliders,
   DollarSign
 } from "lucide-react";
-import { useCandidates } from "../../hooks/use-candidates";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { Progress } from "../../components/ui/progress";
+import { useCandidates } from "@/hooks/use-candidates";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 function ExplainabilityContent() {
   const router = useRouter();

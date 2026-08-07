@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/utils/cn";
 
 export function Card({ className, hoverEffect = false, ...props }) {
   return (

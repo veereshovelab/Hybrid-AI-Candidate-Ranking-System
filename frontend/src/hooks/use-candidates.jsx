@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useMemo } from "react";
-import { SAMPLE_CANDIDATES } from "../lib/sample-data";
-import { scoreCandidate } from "../utils/scorer";
+import { SAMPLE_CANDIDATES } from "@/lib/sample-data";
+import { scoreCandidate } from "@/utils/scorer";
 
 const CandidatesContext = createContext(undefined);
 
