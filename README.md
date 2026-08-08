@@ -1,6 +1,17 @@
 # Hybrid AI Candidate Ranking System
+ 
+A premium end-to-end candidate ranking and discovery system. It features a Python backend data processing pipeline for evaluating candidate qualifications against job descriptions and a Next.js frontend application for visualizing, filtering, and managing ranked candidates.
 
-A premium end-to-end candidate ranking and discovery system. It features a Python backend data processing pipeline for evaluating candidate qualifications against job descriptions and a Next.js frontend application for visualizing and filtering the ranked candidates.
+---
+
+## 🌟 Key Platform Capabilities
+
+- **Executive KPI Dashboard (`/dashboard`)**: Macro metrics, match score distribution histograms, top candidate shortlists, and custom dataset (`.json`/`.jsonl`) ingestion.
+- **Interactive Talent Discovery Table (`/rankings`)**: Multi-dimensional filtering by required skills, experience thresholds, candidate availability, relocation flags, and sorting controls.
+- **Candidate Detail Dossier (`/candidates/[id]`)**: Deep-dive candidate dossiers with AI reasoning summaries, career history timelines, skill proficiency matrices, and behavioral engagement signals.
+- **Explainability & Audit Engine (`/explainability`)**: Mathematical formula score composition breakdown and automated anti-cheat / honeypot detection logs.
+- **Macro Talent Analytics (`/analytics`)**: Screening drop-off funnel visualizations, tenure histograms, and behavioral metric averages.
+- **HR Profile & Recruiter Command Center (`/profile`)**: Recruiter identity credentials, active job requisitions oversight, candidate interview pipeline stage tracking, customizable scoring weights, and one-click CSV shortlist export.
 
 ---
 

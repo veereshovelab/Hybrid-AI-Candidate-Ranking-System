@@ -381,6 +381,42 @@ export default function HRProfilePage() {
     return allCandidates.filter(c => ids.includes(c.candidate_id));
   }, [allCandidates, shortlistedMap]);
 
+  // Export shortlisted candidates as CSV
+  const handleExportShortlist = () => {
+    if (shortlistedCandidates.length === 0) {
+      showToast("No candidates in shortlist to export.");
+      return;
+    }
+
+    const headers = ["Candidate ID", "Name", "Current Role", "Company", "Experience (Yrs)", "Location", "Match Score (%)", "Interview Stage", "Recruiter Notes"];
+    const rows = shortlistedCandidates.map(c => {
+      const stage = shortlistedMap[c.candidate_id]?.stage || "Screening";
+      const note = (candidateNotes[c.candidate_id] || "").replace(/"/g, '""');
+      return [
+        c.candidate_id,
+        `"${c.profile.anonymized_name}"`,
+        `"${c.profile.current_title}"`,
+        `"${c.profile.current_company}"`,
+        c.profile.years_of_experience.toFixed(1),
+        `"${c.profile.location}"`,
+        c.scoreBreakdown.final_score.toFixed(1),
+        `"${stage}"`,
+        `"${note}"`
+      ].join(",");
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `recruiter_shortlist_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast(`Exported ${shortlistedCandidates.length} shortlisted candidates to CSV!`);
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-16">
       
@@ -444,6 +480,17 @@ export default function HRProfilePage() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-2.5 self-stretch md:self-auto">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExportShortlist}
+              className="flex items-center gap-1.5 text-xs h-9"
+              title="Export Shortlist CSV Report"
+            >
+              <Download className="h-3.5 w-3.5 text-primary" />
+              Export Shortlist
+            </Button>
+
             <Button 
               variant="outline" 
               size="sm" 
