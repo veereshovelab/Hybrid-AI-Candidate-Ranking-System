@@ -26,22 +26,18 @@ function ExplainabilityContent() {
 
   const { allCandidates, requiredSkills, preferredSkills, minJobExp } = useCandidates();
 
-  // Calculate initial ID
-  const initialId = useMemo(() => {
+  // Find candidate by query param, selectedId, or default to first candidate
+  const [selectedId, setSelectedId] = useState("");
+
+  const activeId = useMemo(() => {
+    if (selectedId && allCandidates.some(c => c.candidate_id === selectedId)) {
+      return selectedId;
+    }
     if (candidateParam && allCandidates.some(c => c.candidate_id === candidateParam)) {
       return candidateParam;
     }
     return allCandidates[0] ? allCandidates[0].candidate_id : "";
-  }, [allCandidates, candidateParam]);
-
-  const [selectedId, setSelectedId] = useState(initialId);
-
-  // Sync state with url/context updates
-  const [prevInitialId, setPrevInitialId] = useState(initialId);
-  if (initialId !== prevInitialId) {
-    setSelectedId(initialId);
-    setPrevInitialId(initialId);
-  }
+  }, [allCandidates, candidateParam, selectedId]);
 
   // Handle dropdown selection change
   const handleCandidateChange = (e) => {
@@ -53,8 +49,8 @@ function ExplainabilityContent() {
 
   // Selected candidate object
   const candidate = useMemo(() => {
-    return allCandidates.find(c => c.candidate_id === selectedId);
-  }, [allCandidates, selectedId]);
+    return allCandidates.find(c => c.candidate_id === activeId);
+  }, [allCandidates, activeId]);
 
   // Compute breakdowns
   const details = useMemo(() => {
@@ -109,7 +105,7 @@ function ExplainabilityContent() {
         <div className="flex items-center space-x-3">
           <span className="text-xs font-semibold text-slate-300">Auditing profile:</span>
           <select
-            value={selectedId}
+            value={activeId}
             onChange={handleCandidateChange}
             className="h-10 px-3 rounded-lg bg-slate-900 border border-border text-xs text-slate-100 font-medium focus:outline-none focus:border-primary"
           >

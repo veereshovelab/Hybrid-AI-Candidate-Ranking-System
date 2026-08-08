@@ -196,8 +196,13 @@ export default function HRProfilePage() {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
+  const hasInitializedRef = React.useRef(false);
+
   // Load from localStorage on mount
   useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
     try {
       const savedProfile = localStorage.getItem("hr_profile_data");
       if (savedProfile) setProfile(JSON.parse(savedProfile));
@@ -206,7 +211,22 @@ export default function HRProfilePage() {
       if (savedWeights) setScorerWeights(JSON.parse(savedWeights));
 
       const savedShortlist = localStorage.getItem("hr_shortlist_map");
-      if (savedShortlist) setShortlistedMap(JSON.parse(savedShortlist));
+      if (savedShortlist) {
+        setShortlistedMap(JSON.parse(savedShortlist));
+      } else if (allCandidates.length > 0) {
+        const initialMap = {};
+        const topPicks = allCandidates.filter(c => (c.scoreBreakdown?.final_score ?? 0) >= 65).slice(0, 5);
+        topPicks.forEach((c, idx) => {
+          const stages = ["Screening", "Tech Round 1", "System Design", "Offer Extended"];
+          initialMap[c.candidate_id] = {
+            stage: stages[idx % stages.length],
+            starred: true,
+            addedDate: "2026-06-20",
+            reqId: "REQ-101"
+          };
+        });
+        setShortlistedMap(initialMap);
+      }
 
       const savedNotes = localStorage.getItem("hr_candidate_notes");
       if (savedNotes) setCandidateNotes(JSON.parse(savedNotes));
@@ -219,25 +239,7 @@ export default function HRProfilePage() {
     } catch (e) {
       console.warn("Could not load HR profile from localStorage", e);
     }
-  }, []);
-
-  // Initialize shortlist map if empty with top candidates
-  useEffect(() => {
-    if (allCandidates.length > 0 && Object.keys(shortlistedMap).length === 0) {
-      const initialMap = {};
-      const topPicks = allCandidates.filter(c => c.scoreBreakdown.final_score >= 65).slice(0, 5);
-      topPicks.forEach((c, idx) => {
-        const stages = ["Screening", "Tech Round 1", "System Design", "Offer Extended"];
-        initialMap[c.candidate_id] = {
-          stage: stages[idx % stages.length],
-          starred: true,
-          addedDate: "2026-06-20",
-          reqId: "REQ-101"
-        };
-      });
-      setShortlistedMap(initialMap);
-    }
-  }, [allCandidates, shortlistedMap]);
+  }, [allCandidates]);
 
   // Profile Save
   const handleSaveProfile = (e) => {
