@@ -8,6 +8,7 @@ import {
   Users, 
   BarChart3, 
   ShieldQuestion, 
+  UserCheck,
   Cpu, 
   Zap,
   Upload,
@@ -45,6 +46,12 @@ export function Sidebar() {
       path: "/explainability",
       icon: ShieldQuestion,
       description: "Score Audit Logs"
+    },
+    {
+      name: "HR Profile",
+      path: "/profile",
+      icon: UserCheck,
+      description: "Recruiter Workspace"
     }
   ];
 

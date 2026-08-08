@@ -2,7 +2,8 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Briefcase, FileSearch, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Search, Briefcase, FileSearch, Sparkles, UserCheck } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 
 export function Topbar() {
@@ -12,6 +13,7 @@ export function Topbar() {
 
   // Determine page title based on path
   const getPageTitle = () => {
+    if (pathname.startsWith("/profile")) return "Recruiter HR Profile & Workspace";
     if (pathname.startsWith("/dashboard")) return "Dashboard Overview";
     if (pathname.startsWith("/rankings")) return "Candidate Discovery Rankings";
     if (pathname.startsWith("/candidates")) return "Candidate Detail Dossier";
@@ -32,7 +34,11 @@ export function Topbar() {
     <header className="h-16 border-b border-border bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 shrink-0 z-20">
       {/* Title */}
       <div className="flex items-center space-x-3">
-        <Briefcase className="h-5 w-5 text-primary" />
+        {pathname.startsWith("/profile") ? (
+          <UserCheck className="h-5 w-5 text-primary" />
+        ) : (
+          <Briefcase className="h-5 w-5 text-primary" />
+        )}
         <h2 className="text-md font-semibold text-slate-100">{getPageTitle()}</h2>
       </div>
 
@@ -48,7 +54,7 @@ export function Topbar() {
         />
       </div>
 
-      {/* Active Role Info */}
+      {/* Active Role Info & Recruiter Profile Avatar */}
       <div className="flex items-center space-x-4">
         <div className="flex flex-col items-end">
           <div className="flex items-center space-x-1.5">
@@ -59,9 +65,22 @@ export function Topbar() {
             {filteredCandidates.length} matched / {allCandidates.length} samples
           </span>
         </div>
-        <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-semibold text-slate-300">
-          HR
-        </div>
+
+        {/* HR Profile Quick Link */}
+        <Link 
+          href="/profile" 
+          className={`relative group flex items-center justify-center p-0.5 rounded-full transition-all duration-200 ${
+            pathname.startsWith("/profile") 
+              ? "ring-2 ring-primary ring-offset-2 ring-offset-slate-900" 
+              : "hover:scale-105 hover:ring-1 hover:ring-primary/50"
+          }`}
+          title="Open HR Recruiter Profile"
+        >
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-600/30 border border-primary/40 flex items-center justify-center text-xs font-bold text-slate-100 shadow-sm">
+            HR
+          </div>
+          <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-success border-2 border-slate-900" />
+        </Link>
       </div>
     </header>
   );
