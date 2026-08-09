@@ -79,6 +79,7 @@ export default function Rankings() {
 
   // Selected filters count
   const activeFiltersCount = 
+    (searchQuery.trim() !== "" ? 1 : 0) +
     (minExperience > 0 ? 1 : 0) +
     (locationQuery ? 1 : 0) +
     selectedSkills.length +
@@ -172,6 +173,31 @@ export default function Rankings() {
             </CardHeader>
             <CardContent className="space-y-6">
               
+              {/* Keyword / Candidate Search Input */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                  <Search className="h-3.5 w-3.5 text-muted-foreground" /> Keyword / Name Search
+                </span>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search candidate, role, skill..."
+                    className="w-full h-9 pl-3 pr-8 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 placeholder-muted-foreground focus:outline-none focus:border-primary/60"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-slate-200"
+                      title="Clear search"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Experience slider */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
@@ -275,6 +301,12 @@ export default function Rankings() {
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {/* Active Filter Chips */}
+                {searchQuery.trim() !== "" && (
+                  <Badge variant="primary" className="flex items-center gap-1">
+                    Search: "{searchQuery}"
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery("")} />
+                  </Badge>
+                )}
                 {minExperience > 0 && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     Exp ≥ {minExperience} yrs
@@ -319,9 +351,21 @@ export default function Rankings() {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-border/80 text-muted-foreground font-semibold bg-slate-900/20">
-                        {/* Compare Selection Checkbox */}
-                        <th className="py-3.5 px-4 w-10 text-center">
-                          <span className="text-[10px] uppercase font-mono">Select</span>
+                        {/* Compare Selection Checkbox with Top 3 toggle */}
+                        <th className="py-3.5 px-4 w-12 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedForCompare.length > 0 && selectedForCompare.length === Math.min(3, filteredCandidates.length)}
+                            onChange={() => {
+                              if (selectedForCompare.length > 0) {
+                                setSelectedForCompare([]);
+                              } else {
+                                setSelectedForCompare(filteredCandidates.slice(0, 3).map(c => c.candidate_id));
+                              }
+                            }}
+                            className="h-3.5 w-3.5 rounded bg-slate-950 border-border accent-primary cursor-pointer"
+                            title="Toggle select top 3 candidates for comparison"
+                          />
                         </th>
                         {/* Headers with Sort controls */}
                         <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("score")}>
