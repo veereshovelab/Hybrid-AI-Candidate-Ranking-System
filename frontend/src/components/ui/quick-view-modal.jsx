@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { 
   X, 
@@ -15,7 +15,9 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertTriangle,
-  Award
+  Award,
+  Copy,
+  Check
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +25,19 @@ import { Button } from "@/components/ui/button";
 import { CircularScore } from "@/components/visual/circular-score";
 
 export function QuickViewModal({ candidate, onClose, isStarred, onToggleStar }) {
+  const [copied, setCopied] = useState(false);
   if (!candidate) return null;
+
+  const handleCopyLink = () => {
+    try {
+      const url = `${window.location.origin}/candidates/${candidate.candidate_id}`;
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const b = candidate.scoreBreakdown || {};
   const profile = candidate.profile || {};
@@ -57,6 +71,16 @@ export function QuickViewModal({ candidate, onClose, isStarred, onToggleStar }) 
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCopyLink}
+              className="text-xs flex items-center gap-1.5 border-border/80"
+              title="Copy link to candidate profile"
+            >
+              {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5 text-slate-300" />}
+              {copied ? "Link Copied!" : "Share"}
+            </Button>
             <Link href={`/candidates/${candidate.candidate_id}`}>
               <Button size="sm" className="text-xs flex items-center gap-1.5">
                 Full Dossier

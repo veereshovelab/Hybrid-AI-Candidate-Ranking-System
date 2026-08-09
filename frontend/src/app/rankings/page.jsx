@@ -14,6 +14,8 @@ import {
   RefreshCw,
   Eye,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   AlertTriangle,
   DollarSign,
   GitCompare,
@@ -514,18 +516,18 @@ export default function Rankings() {
                         {/* Headers with Sort controls */}
                         <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("score")}>
                           <div className="flex items-center gap-1.5">
-                            Rank / Score {sortBy === "score" && <ArrowUpDown className="h-3 w-3 text-primary" />}
+                            Rank / Score {sortBy === "score" ? (sortOrder === "desc" ? <ArrowDown className="h-3.5 w-3.5 text-primary" /> : <ArrowUp className="h-3.5 w-3.5 text-primary" />) : <ArrowUpDown className="h-3 w-3 text-muted-foreground/60" />}
                           </div>
                         </th>
                         <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("id")}>
                           <div className="flex items-center gap-1.5">
-                            Candidate ID {sortBy === "id" && <ArrowUpDown className="h-3 w-3 text-primary" />}
+                            Candidate ID {sortBy === "id" ? (sortOrder === "desc" ? <ArrowDown className="h-3.5 w-3.5 text-primary" /> : <ArrowUp className="h-3.5 w-3.5 text-primary" />) : <ArrowUpDown className="h-3 w-3 text-muted-foreground/60" />}
                           </div>
                         </th>
                         <th className="py-3.5 px-4 font-bold">Current Role & Company</th>
                         <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("experience")}>
                           <div className="flex items-center gap-1.5">
-                            Experience {sortBy === "experience" && <ArrowUpDown className="h-3 w-3 text-primary" />}
+                            Experience {sortBy === "experience" ? (sortOrder === "desc" ? <ArrowDown className="h-3.5 w-3.5 text-primary" /> : <ArrowUp className="h-3.5 w-3.5 text-primary" />) : <ArrowUpDown className="h-3 w-3 text-muted-foreground/60" />}
                           </div>
                         </th>
                         <th className="py-3.5 px-4 font-bold">Location</th>

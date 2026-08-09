@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useMemo } from "react";
+import React, { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -19,7 +19,9 @@ import {
   Sparkles,
   BookOpen,
   GitCompare,
-  Star
+  Star,
+  Copy,
+  Check
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -39,8 +41,20 @@ export default function CandidateDetail({ params }) {
   const router = useRouter();
   const resolvedParams = use(params);
   const candidateId = resolvedParams.id;
+  const [copied, setCopied] = useState(false);
 
   const { allCandidates, toggleStarCandidate, isCandidateStarred } = useCandidates();
+
+  const handleCopyLink = () => {
+    try {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Find candidate details
   const candidate = useMemo(() => {
@@ -125,6 +139,17 @@ export default function CandidateDetail({ params }) {
           Back to Rankings
         </Button>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyLink}
+            className="text-xs flex items-center gap-1.5 border-border/80 text-slate-300 hover:text-white"
+            title="Copy direct profile link to clipboard"
+          >
+            {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5 text-slate-300" />}
+            {copied ? "Link Copied!" : "Share Profile"}
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
