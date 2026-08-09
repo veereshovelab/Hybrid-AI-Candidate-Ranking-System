@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, 
   Users, 
+  GitCompare,
   BarChart3, 
   ShieldQuestion, 
   UserCheck,
@@ -34,6 +35,12 @@ export function Sidebar() {
       path: "/rankings",
       icon: Users,
       description: "Interactive Talent Table"
+    },
+    {
+      name: "Compare Candidates",
+      path: "/compare",
+      icon: GitCompare,
+      description: "Side-by-Side Matrix"
     },
     {
       name: "Analytics",

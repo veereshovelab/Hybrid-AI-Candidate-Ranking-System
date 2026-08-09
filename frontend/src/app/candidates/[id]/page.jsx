@@ -17,7 +17,8 @@ import {
   User,
   GraduationCap,
   Sparkles,
-  BookOpen
+  BookOpen,
+  GitCompare
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -116,18 +117,26 @@ export default function CandidateDetail({ params }) {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
-      {/* Back Button */}
+      {/* Back Button and Actions */}
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" onClick={() => router.back()} className="flex items-center gap-1.5 text-xs">
           <ArrowLeft className="h-4 w-4" />
           Back to Rankings
         </Button>
-        <Link href={`/explainability?candidate=${candidateId}`}>
-          <Button variant="ghost" size="sm" className="text-xs text-primary flex items-center gap-1.5">
-            Audit Score Breakdown
-            <Sparkles className="h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/compare?c1=${candidateId}`}>
+            <Button variant="outline" size="sm" className="text-xs flex items-center gap-1.5">
+              <GitCompare className="h-3.5 w-3.5 text-primary" />
+              Compare Candidate
+            </Button>
+          </Link>
+          <Link href={`/explainability?candidate=${candidateId}`}>
+            <Button variant="ghost" size="sm" className="text-xs text-primary flex items-center gap-1.5">
+              Audit Score Breakdown
+              <Sparkles className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Candidate Dossier Header */}

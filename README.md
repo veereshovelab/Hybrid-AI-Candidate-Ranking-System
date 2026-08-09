@@ -7,7 +7,8 @@ A premium end-to-end candidate ranking and discovery system. It features a Pytho
 ## 🌟 Key Platform Capabilities
 
 - **Executive KPI Dashboard (`/dashboard`)**: Macro metrics, match score distribution histograms, top candidate shortlists, and custom dataset (`.json`/`.jsonl`) ingestion.
-- **Interactive Talent Discovery Table (`/rankings`)**: Multi-dimensional filtering by required skills, experience thresholds, candidate availability, relocation flags, and sorting controls.
+- **Interactive Talent Discovery Table (`/rankings`)**: Multi-dimensional filtering by required skills, experience thresholds, candidate availability, relocation flags, multi-candidate selection, and sorting controls.
+- **Candidate Comparison Matrix (`/compare`)**: Side-by-side head-to-head evaluation of up to 3 candidates across 4-pillar scores, skill depth, notice period velocity, compensation ROI, and integrity flags with one-click comparative brief export.
 - **Candidate Detail Dossier (`/candidates/[id]`)**: Deep-dive candidate dossiers with AI reasoning summaries, career history timelines, skill proficiency matrices, and behavioral engagement signals.
 - **Explainability & Audit Engine (`/explainability`)**: Mathematical formula score composition breakdown and automated anti-cheat / honeypot detection logs.
 - **Macro Talent Analytics (`/analytics`)**: Screening drop-off funnel visualizations, tenure histograms, and behavioral metric averages.

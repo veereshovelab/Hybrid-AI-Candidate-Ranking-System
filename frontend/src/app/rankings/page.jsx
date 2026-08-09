@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   SlidersHorizontal, 
   Search, 
@@ -14,7 +15,9 @@ import {
   Eye,
   ArrowUpDown,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  GitCompare,
+  CheckSquare
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -22,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function Rankings() {
+  const router = useRouter();
   const {
     filteredCandidates,
     searchQuery,
@@ -47,6 +51,31 @@ export default function Rankings() {
     preferredSkills,
     setPreferredSkills
   } = useCandidates();
+
+  // Selected candidates for side-by-side comparison
+  const [selectedForCompare, setSelectedForCompare] = useState([]);
+
+  const toggleCompareSelect = (candidateId) => {
+    setSelectedForCompare(prev => {
+      if (prev.includes(candidateId)) {
+        return prev.filter(id => id !== candidateId);
+      }
+      if (prev.length >= 3) {
+        alert("You can select up to 3 candidates for side-by-side comparison.");
+        return prev;
+      }
+      return [...prev, candidateId];
+    });
+  };
+
+  const handleLaunchComparison = () => {
+    if (selectedForCompare.length < 2) return;
+    const params = new URLSearchParams();
+    params.set("c1", selectedForCompare[0]);
+    params.set("c2", selectedForCompare[1]);
+    if (selectedForCompare[2]) params.set("c3", selectedForCompare[2]);
+    router.push(`/compare?${params.toString()}`);
+  };
 
   // Selected filters count
   const activeFiltersCount = 
@@ -90,17 +119,43 @@ export default function Rankings() {
           </p>
         </div>
         
-        {activeFiltersCount > 0 && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleResetFilters} 
-            className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Reset all filters ({activeFiltersCount})
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {selectedForCompare.length > 0 && (
+            <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-xl animate-fade-in">
+              <span className="text-xs text-primary font-semibold">
+                {selectedForCompare.length} selected
+              </span>
+              <Button
+                size="sm"
+                onClick={handleLaunchComparison}
+                disabled={selectedForCompare.length < 2}
+                className="h-7 text-xs flex items-center gap-1 px-2.5"
+              >
+                <GitCompare className="h-3.5 w-3.5" />
+                Compare Now
+              </Button>
+              <button
+                onClick={() => setSelectedForCompare([])}
+                className="text-muted-foreground hover:text-red-400 p-0.5"
+                title="Clear selection"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          {activeFiltersCount > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleResetFilters} 
+              className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Reset all filters ({activeFiltersCount})
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Grid: Filters Sidebar + Results Table */}
@@ -264,25 +319,29 @@ export default function Rankings() {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-border/80 text-muted-foreground font-semibold bg-slate-900/20">
+                        {/* Compare Selection Checkbox */}
+                        <th className="py-3.5 px-4 w-10 text-center">
+                          <span className="text-[10px] uppercase font-mono">Select</span>
+                        </th>
                         {/* Headers with Sort controls */}
-                        <th className="py-3.5 px-6 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("score")}>
+                        <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("score")}>
                           <div className="flex items-center gap-1.5">
                             Rank / Score {sortBy === "score" && <ArrowUpDown className="h-3 w-3 text-primary" />}
                           </div>
                         </th>
-                        <th className="py-3.5 px-6 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("id")}>
+                        <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("id")}>
                           <div className="flex items-center gap-1.5">
                             Candidate ID {sortBy === "id" && <ArrowUpDown className="h-3 w-3 text-primary" />}
                           </div>
                         </th>
-                        <th className="py-3.5 px-6 font-bold">Current Role & Company</th>
-                        <th className="py-3.5 px-6 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("experience")}>
+                        <th className="py-3.5 px-4 font-bold">Current Role & Company</th>
+                        <th className="py-3.5 px-4 font-bold cursor-pointer hover:text-slate-100" onClick={() => handleSort("experience")}>
                           <div className="flex items-center gap-1.5">
                             Experience {sortBy === "experience" && <ArrowUpDown className="h-3 w-3 text-primary" />}
                           </div>
                         </th>
-                        <th className="py-3.5 px-6 font-bold">Location</th>
-                        <th className="py-3.5 px-6 font-bold">Auditing Flags</th>
+                        <th className="py-3.5 px-4 font-bold">Location</th>
+                        <th className="py-3.5 px-4 font-bold">Auditing Flags</th>
                         <th className="py-3.5 px-6 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -291,16 +350,26 @@ export default function Rankings() {
                         const score = cand.scoreBreakdown.final_score;
                         const flags = cand.scoreBreakdown.flags;
                         const isHoneypotTriggered = cand.scoreBreakdown.penalty_total >= 100;
-                        const hasConsultingHistory = flags.some(f => f.includes("CONSULTING") || f.includes("SERVICE"));
-                        const hasOverlap = flags.some(f => f.includes("OVERLAP"));
+                        const isSelected = selectedForCompare.includes(cand.candidate_id);
 
                         return (
-                          <tr key={cand.candidate_id} className="hover:bg-slate-900/35 transition-colors group">
+                          <tr key={cand.candidate_id} className={`hover:bg-slate-900/35 transition-colors group ${isSelected ? "bg-primary/5" : ""}`}>
                             
+                            {/* Compare Checkbox */}
+                            <td className="py-4 px-4 text-center">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleCompareSelect(cand.candidate_id)}
+                                className="h-4 w-4 rounded bg-slate-950 border-border accent-primary focus:ring-0 cursor-pointer"
+                                title="Select for side-by-side comparison"
+                              />
+                            </td>
+
                             {/* Rank and Match score badge */}
-                            <td className="py-4 px-6">
-                              <div className="flex items-center space-x-3">
-                                <span className="font-bold font-mono text-slate-400 group-hover:text-slate-200">
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-2.5">
+                                <span className="font-bold font-mono text-slate-400 group-hover:text-slate-200 text-xs">
                                   #{index + 1}
                                 </span>
                                 <Badge
@@ -313,7 +382,7 @@ export default function Rankings() {
                             </td>
 
                             {/* Candidate ID & name */}
-                            <td className="py-4 px-6">
+                            <td className="py-4 px-4">
                               <div className="flex flex-col">
                                 <span className="font-mono font-bold text-slate-100">{cand.candidate_id}</span>
                                 <span className="text-[10px] text-muted-foreground">{cand.profile.anonymized_name}</span>
@@ -321,7 +390,7 @@ export default function Rankings() {
                             </td>
 
                             {/* Current Title and Company */}
-                            <td className="py-4 px-6">
+                            <td className="py-4 px-4">
                               <div className="flex flex-col">
                                 <span className="font-semibold text-slate-200 group-hover:text-primary transition-colors">
                                   {cand.profile.current_title}
@@ -333,19 +402,19 @@ export default function Rankings() {
                             </td>
 
                             {/* Years of experience */}
-                            <td className="py-4 px-6">
+                            <td className="py-4 px-4">
                               <span className="font-mono font-semibold text-slate-300">
                                 {cand.profile.years_of_experience.toFixed(1)} yrs
                               </span>
                             </td>
 
                             {/* Location */}
-                            <td className="py-4 px-6">
+                            <td className="py-4 px-4">
                               <span className="text-slate-300">{cand.profile.location}</span>
                             </td>
 
                             {/* Flags indicator */}
-                            <td className="py-4 px-6">
+                            <td className="py-4 px-4">
                               <div className="flex flex-wrap gap-1">
                                 {isHoneypotTriggered && (
                                   <Badge variant="danger" className="text-[9px] font-mono py-0 px-1.5">HONEYPOT</Badge>
@@ -357,7 +426,6 @@ export default function Rankings() {
                                   <Badge variant="secondary" className="text-[9px] font-mono py-0 px-1.5 opacity-60">PASS</Badge>
                                 )}
                                 {flags.slice(0, 2).map((f, idx) => {
-                                  // compact label e.g. HONEYPOT_SKILL_EXP_DISCREPANCY -> Skill Discrepancy
                                   let label = f.replace("HONEYPOT_", "").replace("FLAG_", "").replace(/_/g, " ");
                                   if (label.length > 15) label = label.substring(0, 15) + "..";
                                   return (
@@ -371,7 +439,12 @@ export default function Rankings() {
 
                             {/* View Action buttons */}
                             <td className="py-4 px-6 text-right">
-                              <div className="flex justify-end space-x-1.5">
+                              <div className="flex justify-end items-center space-x-1.5">
+                                <Link href={`/compare?c1=${cand.candidate_id}&c2=${filteredCandidates[0]?.candidate_id === cand.candidate_id ? filteredCandidates[1]?.candidate_id || "CAND-0002" : filteredCandidates[0]?.candidate_id || "CAND-0001"}`}>
+                                  <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2 text-primary hover:text-primary hover:bg-primary/10" title="Compare with benchmark">
+                                    <GitCompare className="h-3 w-3" />
+                                  </Button>
+                                </Link>
                                 <Link href={`/candidates/${cand.candidate_id}`}>
                                   <Button variant="outline" size="sm" className="h-7 text-[11px] px-2 flex items-center gap-1.5">
                                     <Eye className="h-3 w-3" />
