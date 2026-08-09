@@ -17,12 +17,18 @@ import {
   AlertTriangle,
   DollarSign,
   GitCompare,
-  CheckSquare
+  CheckSquare,
+  Star,
+  Download,
+  FileSpreadsheet,
+  FileCode,
+  Clock
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { QuickViewModal } from "@/components/ui/quick-view-modal";
 
 export default function Rankings() {
   const router = useRouter();
@@ -41,19 +47,29 @@ export default function Rankings() {
     setOpenToWorkOnly,
     willingToRelocateOnly,
     setWillingToRelocateOnly,
+    starredOnly,
+    setStarredOnly,
+    maxNoticePeriod,
+    setMaxNoticePeriod,
+    maxSalary,
+    setMaxSalary,
+    starredIds,
+    toggleStarCandidate,
+    isCandidateStarred,
+    exportToCSV,
+    exportToJSON,
     sortBy,
     setSortBy,
     sortOrder,
-    setSortOrder,
-    availableSkills,
-    requiredSkills,
-    setRequiredSkills,
-    preferredSkills,
-    setPreferredSkills
+    setSortOrder
   } = useCandidates();
 
   // Selected candidates for side-by-side comparison
   const [selectedForCompare, setSelectedForCompare] = useState([]);
+  // Quick View Modal Candidate
+  const [quickViewCandidate, setQuickViewCandidate] = useState(null);
+  // Export Menu Open Toggle
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const toggleCompareSelect = (candidateId) => {
     setSelectedForCompare(prev => {
@@ -84,7 +100,10 @@ export default function Rankings() {
     (locationQuery ? 1 : 0) +
     selectedSkills.length +
     (openToWorkOnly ? 1 : 0) +
-    (willingToRelocateOnly ? 1 : 0);
+    (willingToRelocateOnly ? 1 : 0) +
+    (starredOnly ? 1 : 0) +
+    (maxNoticePeriod > 0 ? 1 : 0) +
+    (maxSalary > 0 ? 1 : 0);
 
   // Quick reset all filters
   const handleResetFilters = () => {
@@ -94,6 +113,9 @@ export default function Rankings() {
     clearSkillFilters();
     setOpenToWorkOnly(false);
     setWillingToRelocateOnly(false);
+    setStarredOnly(false);
+    setMaxNoticePeriod(0);
+    setMaxSalary(0);
   };
 
   // Toggle sorting
@@ -106,7 +128,7 @@ export default function Rankings() {
     }
   };
 
-  // Selected skills for filters panel (popular ones to toggle easily)
+  // Popular skills chips
   const popularSkills = ["Python", "NLP", "PyTorch", "LLM", "RAG", "Vector", "LangChain", "SQL", "Milvus", "Kafka"];
 
   return (
@@ -114,15 +136,78 @@ export default function Rankings() {
       {/* Search and Quick Filters bar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div>
-          <h2 className="text-xl font-bold text-slate-100">Intelligent Candidate Search</h2>
+          <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+            Intelligent Candidate Search
+            {starredIds.length > 0 && (
+              <Badge variant="warning" className="font-mono text-[10px] flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {starredIds.length} Starred
+              </Badge>
+            )}
+          </h2>
           <p className="text-xs text-muted-foreground">
             Dynamic scoring based on Senior AI Engineer Job Description (sweet spot: 6-8 years experience).
           </p>
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Export Dropdown */}
+          <div className="relative">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="h-8 text-xs flex items-center gap-1.5 border-border/80 hover:bg-slate-800"
+            >
+              <Download className="h-3.5 w-3.5 text-primary" />
+              Export Shortlist
+            </Button>
+
+            {showExportMenu && (
+              <div 
+                className="absolute right-0 mt-2 w-48 bg-slate-900 border border-border/80 rounded-xl shadow-2xl py-1.5 z-40 animate-fade-in glass"
+                onMouseLeave={() => setShowExportMenu(false)}
+              >
+                <button
+                  onClick={() => {
+                    exportToCSV(filteredCandidates);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                >
+                  <FileSpreadsheet className="h-4 w-4 text-success" />
+                  Export as CSV Report
+                </button>
+                <button
+                  onClick={() => {
+                    exportToJSON(filteredCandidates);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                >
+                  <FileCode className="h-4 w-4 text-warning" />
+                  Export as JSON Dataset
+                </button>
+                {starredIds.length > 0 && (
+                  <button
+                    onClick={() => {
+                      const starredList = filteredCandidates.filter(c => starredIds.includes(c.candidate_id));
+                      exportToCSV(starredList.length > 0 ? starredList : filteredCandidates.filter(c => starredIds.includes(c.candidate_id)), "redrob_starred_candidates.csv");
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full text-left px-3.5 py-2 text-xs text-yellow-400 hover:bg-slate-800 flex items-center gap-2 border-t border-border/40"
+                  >
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    Export Starred Only ({starredIds.length})
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Comparison Launcher */}
           {selectedForCompare.length > 0 && (
-            <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-xl animate-fade-in">
+            <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 px-3 py-1 rounded-xl animate-fade-in">
               <span className="text-xs text-primary font-semibold">
                 {selectedForCompare.length} selected
               </span>
@@ -153,7 +238,7 @@ export default function Rankings() {
               className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Reset all filters ({activeFiltersCount})
+              Reset filters ({activeFiltersCount})
             </Button>
           )}
         </div>
@@ -198,6 +283,21 @@ export default function Rankings() {
                 </div>
               </div>
 
+              {/* Starred Shortlist Toggle */}
+              <div className="pt-1">
+                <button
+                  onClick={() => setStarredOnly(!starredOnly)}
+                  className={`w-full h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
+                    starredOnly 
+                      ? "bg-yellow-400/20 border-yellow-400/60 text-yellow-300" 
+                      : "bg-slate-950 border-border/80 text-slate-300 hover:border-slate-700"
+                  }`}
+                >
+                  <Star className={`h-4 w-4 ${starredOnly ? "fill-yellow-400 text-yellow-400" : "text-yellow-400"}`} />
+                  {starredOnly ? "Showing Starred Only" : `Show Starred (${starredIds.length})`}
+                </button>
+              </div>
+
               {/* Experience slider */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
@@ -227,6 +327,40 @@ export default function Rankings() {
                   placeholder="e.g. Pune, Noida, USA..."
                   className="w-full h-9 px-3 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 placeholder-muted-foreground focus:outline-none focus:border-primary/60"
                 />
+              </div>
+
+              {/* Notice Period Filter */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" /> Max Notice Period
+                </span>
+                <select
+                  value={maxNoticePeriod}
+                  onChange={(e) => setMaxNoticePeriod(Number(e.target.value))}
+                  className="w-full h-9 px-3 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 focus:outline-none focus:border-primary/60 cursor-pointer"
+                >
+                  <option value={0}>Any Notice Period</option>
+                  <option value={30}>≤ 30 Days (Immediate / Fast)</option>
+                  <option value={60}>≤ 60 Days</option>
+                  <option value={90}>≤ 90 Days</option>
+                </select>
+              </div>
+
+              {/* Expected Salary Range Filter */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                  <DollarSign className="h-3.5 w-3.5 text-muted-foreground" /> Max Expected Salary
+                </span>
+                <select
+                  value={maxSalary}
+                  onChange={(e) => setMaxSalary(Number(e.target.value))}
+                  className="w-full h-9 px-3 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 focus:outline-none focus:border-primary/60 cursor-pointer"
+                >
+                  <option value={0}>Any Salary Expectation</option>
+                  <option value={20}>≤ 20 LPA</option>
+                  <option value={30}>≤ 30 LPA</option>
+                  <option value={40}>≤ 40 LPA</option>
+                </select>
               </div>
 
               {/* Skills filters */}
@@ -307,6 +441,12 @@ export default function Rankings() {
                     <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery("")} />
                   </Badge>
                 )}
+                {starredOnly && (
+                  <Badge variant="warning" className="flex items-center gap-1">
+                    Starred Only
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setStarredOnly(false)} />
+                  </Badge>
+                )}
                 {minExperience > 0 && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     Exp ≥ {minExperience} yrs
@@ -319,24 +459,24 @@ export default function Rankings() {
                     <X className="h-3 w-3 cursor-pointer" onClick={() => setLocationQuery("")} />
                   </Badge>
                 )}
+                {maxNoticePeriod > 0 && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    Notice ≤ {maxNoticePeriod}d
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setMaxNoticePeriod(0)} />
+                  </Badge>
+                )}
+                {maxSalary > 0 && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    Salary ≤ {maxSalary} LPA
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setMaxSalary(0)} />
+                  </Badge>
+                )}
                 {selectedSkills.map(skill => (
                   <Badge key={skill} variant="outline" className="flex items-center gap-1">
                     Skill: {skill}
                     <X className="h-3 w-3 cursor-pointer" onClick={() => toggleSkillFilter(skill)} />
                   </Badge>
                 ))}
-                {openToWorkOnly && (
-                  <Badge variant="success" className="flex items-center gap-1">
-                    Open To Work
-                    <X className="h-3 w-3 cursor-pointer" onClick={() => setOpenToWorkOnly(false)} />
-                  </Badge>
-                )}
-                {willingToRelocateOnly && (
-                  <Badge variant="warning" className="flex items-center gap-1">
-                    Willing Reloc
-                    <X className="h-3 w-3 cursor-pointer" onClick={() => setWillingToRelocateOnly(false)} />
-                  </Badge>
-                )}
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -351,8 +491,12 @@ export default function Rankings() {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-border/80 text-muted-foreground font-semibold bg-slate-900/20">
-                        {/* Compare Selection Checkbox with Top 3 toggle */}
-                        <th className="py-3.5 px-4 w-12 text-center">
+                        {/* Star Shortlist Bookmark */}
+                        <th className="py-3.5 px-3 w-10 text-center">
+                          <Star className="h-3.5 w-3.5 text-muted-foreground mx-auto" />
+                        </th>
+                        {/* Compare Selection Checkbox */}
+                        <th className="py-3.5 px-3 w-10 text-center">
                           <input
                             type="checkbox"
                             checked={selectedForCompare.length > 0 && selectedForCompare.length === Math.min(3, filteredCandidates.length)}
@@ -395,12 +539,24 @@ export default function Rankings() {
                         const flags = cand.scoreBreakdown.flags;
                         const isHoneypotTriggered = cand.scoreBreakdown.penalty_total >= 100;
                         const isSelected = selectedForCompare.includes(cand.candidate_id);
+                        const isStarred = isCandidateStarred(cand.candidate_id);
 
                         return (
                           <tr key={cand.candidate_id} className={`hover:bg-slate-900/35 transition-colors group ${isSelected ? "bg-primary/5" : ""}`}>
                             
+                            {/* Star Toggle */}
+                            <td className="py-4 px-3 text-center">
+                              <button
+                                onClick={() => toggleStarCandidate(cand.candidate_id)}
+                                className="p-1 rounded hover:bg-slate-800 transition-colors text-muted-foreground hover:text-yellow-400"
+                                title={isStarred ? "Remove star" : "Star candidate"}
+                              >
+                                <Star className={`h-4 w-4 ${isStarred ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                              </button>
+                            </td>
+
                             {/* Compare Checkbox */}
-                            <td className="py-4 px-4 text-center">
+                            <td className="py-4 px-3 text-center">
                               <input
                                 type="checkbox"
                                 checked={isSelected}
@@ -484,14 +640,22 @@ export default function Rankings() {
                             {/* View Action buttons */}
                             <td className="py-4 px-6 text-right">
                               <div className="flex justify-end items-center space-x-1.5">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => setQuickViewCandidate(cand)}
+                                  className="h-7 text-[11px] px-2 text-slate-300 hover:text-white hover:bg-slate-800" 
+                                  title="Quick View Candidate Dossier"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                </Button>
                                 <Link href={`/compare?c1=${cand.candidate_id}&c2=${filteredCandidates[0]?.candidate_id === cand.candidate_id ? filteredCandidates[1]?.candidate_id || "CAND-0002" : filteredCandidates[0]?.candidate_id || "CAND-0001"}`}>
                                   <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2 text-primary hover:text-primary hover:bg-primary/10" title="Compare with benchmark">
                                     <GitCompare className="h-3 w-3" />
                                   </Button>
                                 </Link>
                                 <Link href={`/candidates/${cand.candidate_id}`}>
-                                  <Button variant="outline" size="sm" className="h-7 text-[11px] px-2 flex items-center gap-1.5">
-                                    <Eye className="h-3 w-3" />
+                                  <Button variant="outline" size="sm" className="h-7 text-[11px] px-2 flex items-center gap-1">
                                     Dossier
                                   </Button>
                                 </Link>
@@ -510,6 +674,16 @@ export default function Rankings() {
         </div>
 
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewCandidate && (
+        <QuickViewModal
+          candidate={quickViewCandidate}
+          onClose={() => setQuickViewCandidate(null)}
+          isStarred={isCandidateStarred(quickViewCandidate.candidate_id)}
+          onToggleStar={toggleStarCandidate}
+        />
+      )}
     </div>
   );
 }

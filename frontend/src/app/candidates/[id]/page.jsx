@@ -18,7 +18,8 @@ import {
   GraduationCap,
   Sparkles,
   BookOpen,
-  GitCompare
+  GitCompare,
+  Star
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -39,7 +40,7 @@ export default function CandidateDetail({ params }) {
   const resolvedParams = use(params);
   const candidateId = resolvedParams.id;
 
-  const { allCandidates } = useCandidates();
+  const { allCandidates, toggleStarCandidate, isCandidateStarred } = useCandidates();
 
   // Find candidate details
   const candidate = useMemo(() => {
@@ -124,6 +125,20 @@ export default function CandidateDetail({ params }) {
           Back to Rankings
         </Button>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toggleStarCandidate(candidateId)}
+            className={`text-xs flex items-center gap-1.5 border transition-all ${
+              isCandidateStarred(candidateId)
+                ? "bg-yellow-400/20 border-yellow-400/60 text-yellow-300"
+                : "border-border/80 text-slate-300 hover:text-yellow-400"
+            }`}
+          >
+            <Star className={`h-3.5 w-3.5 ${isCandidateStarred(candidateId) ? "fill-yellow-400 text-yellow-400" : ""}`} />
+            {isCandidateStarred(candidateId) ? "Starred" : "Star Candidate"}
+          </Button>
+
           <Link href={`/compare?c1=${candidateId}`}>
             <Button variant="outline" size="sm" className="text-xs flex items-center gap-1.5">
               <GitCompare className="h-3.5 w-3.5 text-primary" />
