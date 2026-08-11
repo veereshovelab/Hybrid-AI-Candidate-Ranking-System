@@ -148,7 +148,7 @@ export default function Rankings() {
             )}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Dynamic scoring based on Senior AI Engineer Job Description (sweet spot: 6-8 years experience).
+            AI-powered hybrid scoring matching candidate skills, experience & behavioral metrics (sweet spot: 6-8 years experience).
           </p>
         </div>
         
@@ -586,7 +586,12 @@ export default function Rankings() {
                             {/* Candidate ID & name */}
                             <td className="py-4 px-4">
                               <div className="flex flex-col">
-                                <span className="font-mono font-bold text-slate-100">{cand.candidate_id}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono font-bold text-slate-100">{cand.candidate_id}</span>
+                                  {cand.redrob_signals?.open_to_work_flag && (
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" title="Open to Work Immediately" />
+                                  )}
+                                </div>
                                 <span className="text-[10px] text-muted-foreground">{cand.profile.anonymized_name}</span>
                               </div>
                             </td>
@@ -605,9 +610,16 @@ export default function Rankings() {
 
                             {/* Years of experience */}
                             <td className="py-4 px-4">
-                              <span className="font-mono font-semibold text-slate-300">
-                                {cand.profile.years_of_experience.toFixed(1)} yrs
-                              </span>
+                              <div className="flex flex-col">
+                                <span className="font-mono font-semibold text-slate-300">
+                                  {cand.profile.years_of_experience.toFixed(1)} yrs
+                                </span>
+                                {cand.redrob_signals?.notice_period_days !== undefined && (
+                                  <span className="text-[9px] text-muted-foreground font-mono">
+                                    {cand.redrob_signals.notice_period_days <= 30 ? "⚡ Fast Joiner" : `${cand.redrob_signals.notice_period_days}d notice`}
+                                  </span>
+                                )}
+                              </div>
                             </td>
 
                             {/* Location */}
