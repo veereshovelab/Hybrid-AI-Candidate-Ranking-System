@@ -244,7 +244,10 @@ export function Sidebar() {
             <Cpu className="h-3.5 w-3.5 text-success" />
             <span>Local Engine Status</span>
           </div>
-          <span className="h-2 w-2 rounded-full bg-success animate-pulse inline-block"></span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] font-mono font-bold text-success bg-success/10 px-1.5 py-0.5 rounded border border-success/20">v1.2</span>
+            <span className="h-2 w-2 rounded-full bg-success animate-pulse inline-block"></span>
+          </div>
         </div>
 
         <div className="space-y-1 text-[11px] text-muted-foreground font-mono">
