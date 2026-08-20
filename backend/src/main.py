@@ -148,10 +148,11 @@ def main():
     # 5. Performance Report
     logger.info("=" * 60)
     logger.info("Pipeline Performance Report:")
+    logger.info(f"  - Total Candidates Evaluated: {ranker.processed_count}")
     logger.info(f"  - Elapsed Time: {elapsed_time:.2f} seconds")
     logger.info(f"  - Peak Memory:  {peak_ram:.2f} MB")
-    if elapsed_time > 0:
-        logger.info(f"  - Processing Speed: {round(100000 / elapsed_time, 2)} candidates/sec (extrapolated)")
+    if elapsed_time > 0 and ranker.processed_count > 0:
+        logger.info(f"  - Processing Speed: {round(ranker.processed_count / elapsed_time, 2)} candidates/sec")
     logger.info("=" * 60)
 
 if __name__ == "__main__":

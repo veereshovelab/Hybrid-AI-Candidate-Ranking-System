@@ -14,6 +14,7 @@ class CandidateRanker:
     def __init__(self, scorer: CandidateScorer, top_k: int = 100):
         self.scorer = scorer
         self.top_k = top_k
+        self.processed_count = 0
 
     def rank_candidates(self, candidate_stream: Generator[Dict[str, Any], None, None]) -> List[Dict[str, Any]]:
         """
@@ -26,10 +27,10 @@ class CandidateRanker:
             List[Dict[str, Any]]: List of top-K candidates with scores, sub-scores, and flags.
         """
         evaluated_candidates = []
-        processed_count = 0
+        self.processed_count = 0
         
         for candidate in candidate_stream:
-            processed_count += 1
+            self.processed_count += 1
             
             # Score candidate
             final_score, sub_scores, flags = self.scorer.score_candidate(candidate)
@@ -46,10 +47,10 @@ class CandidateRanker:
             evaluated_candidates.append(eval_data)
             
             # Periodically log progress for huge files
-            if processed_count % 10000 == 0:
-                logger.info(f"Ranker processed {processed_count} candidates...")
+            if self.processed_count % 10000 == 0:
+                logger.info(f"Ranker processed {self.processed_count} candidates...")
 
-        logger.info(f"Finished evaluation. Scored {processed_count} candidates in total.")
+        logger.info(f"Finished evaluation. Scored {self.processed_count} candidates in total.")
         
         # Sort: score descending, then candidate_id ascending (alphabetically)
         evaluated_candidates.sort(key=lambda x: (-x["final_score"], x["candidate_id"]))
