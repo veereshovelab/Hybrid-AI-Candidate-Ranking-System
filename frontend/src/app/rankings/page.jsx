@@ -35,6 +35,7 @@ import { QuickViewModal } from "@/components/ui/quick-view-modal";
 export default function Rankings() {
   const router = useRouter();
   const {
+    candidates,
     filteredCandidates,
     searchQuery,
     setSearchQuery,
@@ -430,9 +431,16 @@ export default function Rankings() {
           <Card className="overflow-hidden">
             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-4 bg-slate-900/40 border-b border-border/50">
               <div>
-                <CardTitle className="text-sm font-bold tracking-tight uppercase">Talent Pool Scores</CardTitle>
+                <CardTitle className="text-sm font-bold tracking-tight uppercase flex items-center gap-2">
+                  Talent Pool Scores
+                  {activeFiltersCount > 0 && (
+                    <Badge variant="secondary" className="font-mono text-[10px]">
+                      {filteredCandidates.length}/{candidates.length}
+                    </Badge>
+                  )}
+                </CardTitle>
                 <CardDescription>
-                  {filteredCandidates.length} candidate profiles matching search parameters.
+                  Showing {filteredCandidates.length} of {candidates.length} candidate profiles matching search parameters.
                 </CardDescription>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
@@ -447,6 +455,18 @@ export default function Rankings() {
                   <Badge variant="warning" className="flex items-center gap-1">
                     Starred Only
                     <X className="h-3 w-3 cursor-pointer" onClick={() => setStarredOnly(false)} />
+                  </Badge>
+                )}
+                {openToWorkOnly && (
+                  <Badge variant="success" className="flex items-center gap-1">
+                    Open to Work
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setOpenToWorkOnly(false)} />
+                  </Badge>
+                )}
+                {willingToRelocateOnly && (
+                  <Badge variant="warning" className="flex items-center gap-1">
+                    Relocate Only
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setWillingToRelocateOnly(false)} />
                   </Badge>
                 )}
                 {minExperience > 0 && (
