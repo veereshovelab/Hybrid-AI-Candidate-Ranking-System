@@ -24,10 +24,12 @@ import {
   Download,
   FileSpreadsheet,
   FileCode,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuickViewModal } from "@/components/ui/quick-view-modal";
@@ -73,6 +75,15 @@ export default function Rankings() {
   const [quickViewCandidate, setQuickViewCandidate] = useState(null);
   // Export Menu Open Toggle
   const [showExportMenu, setShowExportMenu] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalPages = Math.ceil(filteredCandidates.length / pageSize) || 1;
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (validPage - 1) * pageSize;
+  const paginatedCandidates = filteredCandidates.slice(startIndex, startIndex + pageSize);
 
   const toggleCompareSelect = (candidateId) => {
     setSelectedForCompare(prev => {
@@ -556,7 +567,7 @@ export default function Rankings() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/30">
-                      {filteredCandidates.map((cand, index) => {
+                      {paginatedCandidates.map((cand, index) => {
                         const score = cand.scoreBreakdown.final_score;
                         const flags = cand.scoreBreakdown.flags;
                         const isHoneypotTriggered = cand.scoreBreakdown.penalty_total >= 100;
@@ -592,7 +603,7 @@ export default function Rankings() {
                             <td className="py-4 px-4">
                               <div className="flex items-center space-x-2.5">
                                 <span className="font-bold font-mono text-slate-400 group-hover:text-slate-200 text-xs">
-                                  #{index + 1}
+                                  #{startIndex + index + 1}
                                 </span>
                                 <Badge
                                   variant={score >= 80 ? "success" : score >= 60 ? "primary" : score > 0 ? "warning" : "danger"}
@@ -704,6 +715,61 @@ export default function Rankings() {
                 </div>
               )}
             </CardContent>
+
+            {/* Pagination Controls Footer */}
+            {filteredCandidates.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-border/50 bg-slate-900/30">
+                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                  <span>Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="h-7 px-2 rounded bg-slate-950 border border-border text-xs text-slate-200 focus:outline-none focus:border-primary/60 cursor-pointer font-mono"
+                  >
+                    <option value={10}>10 per page</option>
+                    <option value={25}>25 per page</option>
+                    <option value={50}>50 per page</option>
+                    <option value={100}>100 per page</option>
+                  </select>
+                  <span>
+                    Showing <strong className="text-slate-200 font-mono">{startIndex + 1}</strong> to{" "}
+                    <strong className="text-slate-200 font-mono">{Math.min(startIndex + pageSize, filteredCandidates.length)}</strong> of{" "}
+                    <strong className="text-slate-200 font-mono">{filteredCandidates.length}</strong> candidates
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={validPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    className="h-7 text-xs px-2.5 flex items-center gap-1 border-border/80"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Prev
+                  </Button>
+
+                  <span className="text-xs text-slate-300 font-mono px-2">
+                    Page <strong className="text-primary">{validPage}</strong> of {totalPages}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={validPage >= totalPages}
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    className="h-7 text-xs px-2.5 flex items-center gap-1 border-border/80"
+                  >
+                    Next
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         </div>
 
