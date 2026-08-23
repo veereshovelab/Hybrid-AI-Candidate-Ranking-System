@@ -35,20 +35,17 @@ export function CandidatesProvider({ children }) {
   const [minJobExp, setMinJobExp] = useState(5);
 
   // Starred / Bookmarked Candidates persistent state
-  const [starredIds, setStarredIds] = useState([]);
-
-  useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
+  const [starredIds, setStarredIds] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
         const saved = localStorage.getItem("redrob_starred_candidates");
-        if (saved) {
-          setStarredIds(JSON.parse(saved));
-        }
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to load starred candidates from localStorage", e);
       }
-    } catch (e) {
-      console.error("Failed to load starred candidates from localStorage", e);
     }
-  }, []);
+    return [];
+  });
 
   const toggleStarCandidate = (candidateId) => {
     setStarredIds(prev => {

@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Briefcase, FileSearch, Sparkles, UserCheck } from "lucide-react";
+import { Search, Briefcase, FileSearch, Sparkles, UserCheck, X } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 
 export function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchInputRef = useRef(null);
   const { searchQuery, setSearchQuery, filteredCandidates, allCandidates } = useCandidates();
 
   // Determine page title based on path
@@ -30,6 +31,24 @@ export function Topbar() {
     }
   };
 
+  // Keyboard shortcut listener: Press "/" to focus search bar
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeElement = document.activeElement;
+      const isInput = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA" || activeElement.isContentEditable);
+      
+      if (e.key === "/" && !isInput) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === "Escape" && activeElement === searchInputRef.current) {
+        searchInputRef.current?.blur();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <header className="h-16 border-b border-border bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 shrink-0 z-20">
       {/* Title */}
@@ -46,12 +65,26 @@ export function Topbar() {
       <div className="relative w-96">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
         <input
+          ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Search by ID, name, headline, company..."
-          className="w-full h-9 pl-10 pr-4 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 placeholder-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/40 transition-all duration-200"
+          className="w-full h-9 pl-10 pr-9 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 placeholder-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/40 transition-all duration-200"
         />
+        {searchQuery ? (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-slate-200 transition-colors"
+            title="Clear search"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        ) : (
+          <kbd className="absolute right-2.5 top-2.5 hidden sm:inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-mono text-muted-foreground bg-slate-900 border border-border/60 rounded pointer-events-none opacity-80">
+            /
+          </kbd>
+        )}
       </div>
 
       {/* Active Role Info & Recruiter Profile Avatar */}

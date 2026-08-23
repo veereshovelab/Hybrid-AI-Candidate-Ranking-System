@@ -117,6 +117,13 @@ const DEFAULT_REQUISITIONS = [
   }
 ];
 
+const DEFAULT_SHORTLIST_MAP = {
+  "CAND-0001": { stage: "Screening", starred: true, addedDate: "2026-06-20", reqId: "REQ-101" },
+  "CAND-0002": { stage: "Tech Round 1", starred: true, addedDate: "2026-06-20", reqId: "REQ-101" },
+  "CAND-0003": { stage: "System Design", starred: true, addedDate: "2026-06-20", reqId: "REQ-101" },
+  "CAND-0004": { stage: "Offer Extended", starred: true, addedDate: "2026-06-20", reqId: "REQ-101" },
+};
+
 const DEFAULT_ACTIVITY = [
   {
     id: "act-1",
@@ -152,7 +159,15 @@ export default function HRProfilePage() {
   const { allCandidates, filteredCandidates } = useCandidates();
   
   // Profile State
-  const [profile, setProfile] = useState(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_profile_data");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_PROFILE;
+  });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFormData, setEditFormData] = useState(DEFAULT_PROFILE);
   
@@ -160,86 +175,74 @@ export default function HRProfilePage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Requisitions State
-  const [requisitions, setRequisitions] = useState(DEFAULT_REQUISITIONS);
+  const [requisitions, setRequisitions] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_requisitions");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_REQUISITIONS;
+  });
 
   // Shortlist State with stages
-  const [shortlistedMap, setShortlistedMap] = useState({});
-  const [candidateNotes, setCandidateNotes] = useState({});
+  const [shortlistedMap, setShortlistedMap] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_shortlist_map");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_SHORTLIST_MAP;
+  });
+
+  const [candidateNotes, setCandidateNotes] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_candidate_notes");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return {};
+  });
 
   // Scorer Weights State
-  const [scorerWeights, setScorerWeights] = useState({
-    skillMatch: 40,
-    experienceMatch: 20,
-    careerRelevance: 20,
-    behavioralSignals: 20,
-    honeypotSensitivity: "Strict",
-    minScoreThreshold: 65
+  const [scorerWeights, setScorerWeights] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_scorer_weights");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return {
+      skillMatch: 40,
+      experienceMatch: 20,
+      careerRelevance: 20,
+      behavioralSignals: 20,
+      honeypotSensitivity: "Strict",
+      minScoreThreshold: 65
+    };
   });
 
   // Activity Log State
   const [activities, setActivities] = useState(DEFAULT_ACTIVITY);
 
   // Notification Preferences
-  const [notifications, setNotifications] = useState({
-    highMatchAlerts: true,
-    honeypotWarning: true,
-    dailyDigest: true,
-    candidateStatusChange: true,
-    weeklyReport: false
-  });
-
-  // Success message toast
-  const [toastMessage, setToastMessage] = useState("");
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
-  };
-
-  const hasInitializedRef = React.useRef(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-
-    try {
-      const savedProfile = localStorage.getItem("hr_profile_data");
-      if (savedProfile) setProfile(JSON.parse(savedProfile));
-
-      const savedWeights = localStorage.getItem("hr_scorer_weights");
-      if (savedWeights) setScorerWeights(JSON.parse(savedWeights));
-
-      const savedShortlist = localStorage.getItem("hr_shortlist_map");
-      if (savedShortlist) {
-        setShortlistedMap(JSON.parse(savedShortlist));
-      } else if (allCandidates.length > 0) {
-        const initialMap = {};
-        const topPicks = allCandidates.filter(c => (c.scoreBreakdown?.final_score ?? 0) >= 65).slice(0, 5);
-        topPicks.forEach((c, idx) => {
-          const stages = ["Screening", "Tech Round 1", "System Design", "Offer Extended"];
-          initialMap[c.candidate_id] = {
-            stage: stages[idx % stages.length],
-            starred: true,
-            addedDate: "2026-06-20",
-            reqId: "REQ-101"
-          };
-        });
-        setShortlistedMap(initialMap);
-      }
-
-      const savedNotes = localStorage.getItem("hr_candidate_notes");
-      if (savedNotes) setCandidateNotes(JSON.parse(savedNotes));
-
-      const savedReqs = localStorage.getItem("hr_requisitions");
-      if (savedReqs) setRequisitions(JSON.parse(savedReqs));
-
-      const savedNotifs = localStorage.getItem("hr_notifications");
-      if (savedNotifs) setNotifications(JSON.parse(savedNotifs));
-    } catch (e) {
-      console.warn("Could not load HR profile from localStorage", e);
+  const [notifications, setNotifications] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hr_notifications");
+        if (saved) return JSON.parse(saved);
+      } catch {}
     }
-  }, [allCandidates]);
+    return {
+      highMatchAlerts: true,
+      honeypotWarning: true,
+      dailyDigest: true,
+      candidateStatusChange: true,
+      weeklyReport: false
+    };
+  });
 
   // Profile Save
   const handleSaveProfile = (e) => {
