@@ -26,7 +26,11 @@ import {
   FileCode,
   Clock,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  Award,
+  Sparkles,
+  TrendingUp
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -131,6 +135,28 @@ export default function Rankings() {
     setMaxNoticePeriod(0);
     setMaxSalary(0);
   };
+
+  // Preset filter shortcut handler
+  const handleApplyPreset = (type) => {
+    handleResetFilters();
+    if (type === "immediate") {
+      setMaxNoticePeriod(30);
+      setOpenToWorkOnly(true);
+    } else if (type === "ai_experts") {
+      setMinExperience(5);
+      if (!selectedSkills.includes("LLM")) toggleSkillFilter("LLM");
+      if (!selectedSkills.includes("PyTorch")) toggleSkillFilter("PyTorch");
+    } else if (type === "senior") {
+      setMinExperience(7);
+    }
+  };
+
+  // Calculated KPI stats for current filtered view
+  const avgMatchScore = filteredCandidates.length > 0
+    ? (filteredCandidates.reduce((acc, c) => acc + (c.scoreBreakdown?.final_score || 0), 0) / filteredCandidates.length).toFixed(1)
+    : "0.0";
+  const topMatchCount = filteredCandidates.filter(c => (c.scoreBreakdown?.final_score || 0) >= 80).length;
+  const immediateJoinerCount = filteredCandidates.filter(c => (c.redrob_signals?.notice_period_days ?? 999) <= 30).length;
 
   // Toggle sorting
   const handleSort = (field) => {
@@ -258,6 +284,49 @@ export default function Rankings() {
         </div>
       </div>
 
+      {/* KPI Stats Analytics Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-900/60 border border-border/60 rounded-xl p-3.5 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center space-x-3 px-2 border-r border-border/40">
+          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Active Pool</p>
+            <p className="text-base font-bold font-mono text-slate-100">{filteredCandidates.length} <span className="text-xs font-normal text-muted-foreground">candidates</span></p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3 px-2 border-r border-border/40">
+          <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <TrendingUp className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Avg Match Score</p>
+            <p className="text-base font-bold font-mono text-emerald-400">{avgMatchScore}%</p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3 px-2 border-r border-border/40">
+          <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-400">
+            <Award className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Top Matches (≥80%)</p>
+            <p className="text-base font-bold font-mono text-yellow-400">{topMatchCount}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3 px-2">
+          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+            <Zap className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Fast Joiners (≤30d)</p>
+            <p className="text-base font-bold font-mono text-blue-400">{immediateJoinerCount}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Grid: Filters Sidebar + Results Table */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         
@@ -272,6 +341,33 @@ export default function Rankings() {
             </CardHeader>
             <CardContent className="space-y-6">
               
+              {/* Quick Presets */}
+              <div className="space-y-2 pb-3 border-b border-border/40">
+                <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-primary" /> Quick Presets
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => handleApplyPreset("immediate")}
+                    className="text-[10px] px-2 py-1 rounded-md font-medium bg-slate-950 hover:bg-slate-900 border border-border/70 text-emerald-400 flex items-center gap-1 transition-all"
+                  >
+                    <Zap className="h-3 w-3" /> Immediate
+                  </button>
+                  <button
+                    onClick={() => handleApplyPreset("ai_experts")}
+                    className="text-[10px] px-2 py-1 rounded-md font-medium bg-slate-950 hover:bg-slate-900 border border-border/70 text-purple-400 flex items-center gap-1 transition-all"
+                  >
+                    <Award className="h-3 w-3" /> AI Experts
+                  </button>
+                  <button
+                    onClick={() => handleApplyPreset("senior")}
+                    className="text-[10px] px-2 py-1 rounded-md font-medium bg-slate-950 hover:bg-slate-900 border border-border/70 text-amber-400 flex items-center gap-1 transition-all"
+                  >
+                    <Star className="h-3 w-3" /> Senior (7+y)
+                  </button>
+                </div>
+              </div>
+
               {/* Keyword / Candidate Search Input */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
