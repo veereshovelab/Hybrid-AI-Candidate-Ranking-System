@@ -64,7 +64,7 @@ export default function Dashboard() {
     return {
       totalCount,
       avgScore: avgScore.toFixed(1),
-      qualifiedCount: qualifiedCount.toLocaleString(),
+      qualifiedCount: qualifiedCount.toLocaleString('en-US'),
       qualifiedPercent: (qualifiedRatio * 100).toFixed(1),
       shortlistedCount: shortlistedSamples,
       processingTime: totalSpeed < 0.1 ? "0.1s" : `${totalSpeed.toFixed(1)}s`,
@@ -351,7 +351,7 @@ export default function Dashboard() {
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent className="space-y-1">
-            <span className="text-2xl font-bold font-mono tracking-tight text-slate-50">{stats.totalCount.toLocaleString()}</span>
+            <span className="text-2xl font-bold font-mono tracking-tight text-slate-50">{stats.totalCount.toLocaleString('en-US')}</span>
             <div className="text-[10px] text-muted-foreground flex items-center gap-1">
               <span className="text-success font-medium">100% processed</span>
               <span>on CPU architecture</span>

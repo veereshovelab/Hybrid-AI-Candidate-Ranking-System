@@ -253,7 +253,7 @@ export function Sidebar() {
         <div className="space-y-1 text-[11px] text-muted-foreground font-mono">
           <div className="flex justify-between">
             <span>Pool Size:</span>
-            <span className="text-slate-300 font-medium">{candidates.length.toLocaleString()} profiles</span>
+            <span className="text-slate-300 font-medium">{candidates.length.toLocaleString('en-US')} profiles</span>
           </div>
           <div className="flex justify-between">
             <span>RAM Usage:</span>
