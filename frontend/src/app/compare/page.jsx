@@ -173,14 +173,16 @@ function CompareContent() {
       ["Anti-Cheat Flags", ...selectedCandidates.map(c => `"${c.scoreBreakdown.flags.join("; ") || "Clean (Pass)"}"`)]
     ];
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvText = "\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", `candidate_comparison_${selectedCandidates.map(c => c.candidate_id).join("_vs_")}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Comparative AI Synthesis Insights

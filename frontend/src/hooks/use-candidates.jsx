@@ -194,7 +194,7 @@ export function CandidatesProvider({ children }) {
     setSelectedSkills([]);
   };
 
-  // CSV Exporter helper
+  // CSV Exporter helper with Excel BOM and Blob support
   const exportToCSV = (targetCandidates = filteredCandidates, filename = "redrob_candidate_shortlist.csv") => {
     if (!targetCandidates || targetCandidates.length === 0) {
       alert("No candidates available to export.");
@@ -221,7 +221,7 @@ export function CandidatesProvider({ children }) {
     ];
 
     const rows = targetCandidates.map((cand, idx) => {
-      const b = cand.scoreBreakdown;
+      const b = cand.scoreBreakdown || {};
       const flags = (b.flags || []).join("; ");
       const salaryMax = cand.redrob_signals?.expected_salary_range_inr_lpa?.max || "N/A";
       const noticeDays = cand.redrob_signals?.notice_period_days ?? "N/A";
@@ -234,29 +234,32 @@ export function CandidatesProvider({ children }) {
         `"${(cand.profile?.current_company || "").replace(/"/g, '""')}"`,
         cand.profile?.years_of_experience || 0,
         `"${cand.profile?.location || ""}"`,
-        b.final_score.toFixed(1),
-        b.skill_match.toFixed(1),
-        b.experience_match.toFixed(1),
-        b.career_relevance.toFixed(1),
-        b.behavioral_score.toFixed(1),
-        b.penalty_total.toFixed(1),
+        (b.final_score || 0).toFixed(1),
+        (b.skill_match || 0).toFixed(1),
+        (b.experience_match || 0).toFixed(1),
+        (b.career_relevance || 0).toFixed(1),
+        (b.behavioral_score || 0).toFixed(1),
+        (b.penalty_total || 0).toFixed(1),
         noticeDays,
         salaryMax,
         `"${flags}"`
       ];
     });
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    // Use UTF-8 BOM (\uFEFF) so Excel opens CSV without encoding issues
+    const csvText = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  // JSON Exporter helper
+  // JSON Exporter helper with Blob support
   const exportToJSON = (targetCandidates = filteredCandidates, filename = "redrob_candidate_shortlist.json") => {
     if (!targetCandidates || targetCandidates.length === 0) {
       alert("No candidates available to export.");
@@ -276,13 +279,16 @@ export function CandidatesProvider({ children }) {
       skills: cand.skills
     }));
 
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("href", url);
     downloadAnchor.setAttribute("download", filename);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
+    URL.revokeObjectURL(url);
   };
 
   return (

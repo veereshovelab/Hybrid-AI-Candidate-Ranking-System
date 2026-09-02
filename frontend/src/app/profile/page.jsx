@@ -158,6 +158,15 @@ const DEFAULT_ACTIVITY = [
 export default function HRProfilePage() {
   const { allCandidates, filteredCandidates } = useCandidates();
   
+  // Toast state
+  const [toastMessage, setToastMessage] = useState(null);
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
+
   // Profile State
   const [profile, setProfile] = useState(() => {
     if (typeof window !== "undefined") {
@@ -408,14 +417,16 @@ export default function HRProfilePage() {
       ].join(",");
     });
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvText = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", `recruiter_shortlist_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
     showToast(`Exported ${shortlistedCandidates.length} shortlisted candidates to CSV!`);
   };
