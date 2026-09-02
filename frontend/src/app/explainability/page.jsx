@@ -24,7 +24,30 @@ function ExplainabilityContent() {
   const searchParams = useSearchParams();
   const candidateParam = searchParams.get("candidate");
 
-  const { allCandidates, requiredSkills, preferredSkills, minJobExp } = useCandidates();
+  const { allCandidates, requiredSkills, preferredSkills, minJobExp, scoreWeights, setScoreWeights } = useCandidates();
+
+  // Local state for weight simulator
+  const [localWeights, setLocalWeights] = useState(scoreWeights || { skill: 40, exp: 20, career: 20, behavioral: 20 });
+
+  useEffect(() => {
+    if (scoreWeights) setLocalWeights(scoreWeights);
+  }, [scoreWeights]);
+
+  const totalWeightSum = (localWeights.skill || 0) + (localWeights.exp || 0) + (localWeights.career || 0) + (localWeights.behavioral || 0);
+
+  const handleApplyWeights = () => {
+    if (totalWeightSum !== 100) {
+      alert(`Formula weights must sum to exactly 100%. Current sum: ${totalWeightSum}%`);
+      return;
+    }
+    setScoreWeights(localWeights);
+  };
+
+  const handleResetWeights = () => {
+    const defaults = { skill: 40, exp: 20, career: 20, behavioral: 20 };
+    setLocalWeights(defaults);
+    setScoreWeights(defaults);
+  };
 
   // Find candidate by query param, selectedId, or default to first candidate
   const [selectedId, setSelectedId] = useState("");
@@ -124,6 +147,116 @@ function ExplainabilityContent() {
         {/* Left Columns (Breakdowns) */}
         <div className="lg:col-span-2 space-y-6">
           
+          {/* Formula Weight Customizer & Live Simulator Card */}
+          <Card className="border border-indigo-500/30 bg-slate-900/90 shadow-xl">
+            <CardHeader className="pb-3 border-b border-slate-800/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Sliders className="h-4 w-4 text-indigo-400" />
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider">Dynamic Formula Weight Simulator</CardTitle>
+                </div>
+                <Badge variant={totalWeightSum === 100 ? "cyan" : "danger"} className="font-mono text-[10px]">
+                  Total Weight: {totalWeightSum}% {totalWeightSum === 100 ? "(Valid)" : "(Must sum to 100%)"}
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">
+                Adjust pillar weights in real time to simulate custom scoring models for candidate {candidate.candidate_id}.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                {/* Skill Weight */}
+                <div className="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-200">Skill Match Weight</span>
+                    <span className="font-mono text-indigo-400 font-bold">{localWeights.skill}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localWeights.skill}
+                    onChange={(e) => setLocalWeights(prev => ({ ...prev, skill: Number(e.target.value) }))}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+
+                {/* Experience Weight */}
+                <div className="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-200">Experience Weight</span>
+                    <span className="font-mono text-emerald-400 font-bold">{localWeights.exp}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localWeights.exp}
+                    onChange={(e) => setLocalWeights(prev => ({ ...prev, exp: Number(e.target.value) }))}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                  />
+                </div>
+
+                {/* Career Weight */}
+                <div className="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-200">Career Relevance Weight</span>
+                    <span className="font-mono text-amber-400 font-bold">{localWeights.career}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localWeights.career}
+                    onChange={(e) => setLocalWeights(prev => ({ ...prev, career: Number(e.target.value) }))}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  />
+                </div>
+
+                {/* Behavioral Weight */}
+                <div className="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-200">Behavioral Signals Weight</span>
+                    <span className="font-mono text-purple-400 font-bold">{localWeights.behavioral}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localWeights.behavioral}
+                    onChange={(e) => setLocalWeights(prev => ({ ...prev, behavioral: Number(e.target.value) }))}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/60">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleResetWeights}
+                  className="text-xs text-slate-400 hover:text-slate-200 h-8"
+                >
+                  Reset Defaults (40 / 20 / 20 / 20)
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={handleApplyWeights}
+                  disabled={totalWeightSum !== 100}
+                  className="text-xs h-8"
+                >
+                  Apply Formula Weights Globally
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Main composition card */}
           <Card>
             <CardHeader className="pb-4">

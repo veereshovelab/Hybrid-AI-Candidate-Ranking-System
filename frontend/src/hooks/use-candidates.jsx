@@ -34,6 +34,14 @@ export function CandidatesProvider({ children }) {
   ]);
   const [minJobExp, setMinJobExp] = useState(5);
 
+  // Dynamic Formula Score Weights
+  const [scoreWeights, setScoreWeights] = useState({
+    skill: 40,
+    exp: 20,
+    career: 20,
+    behavioral: 20
+  });
+
   // Starred / Bookmarked Candidates persistent state
   const [starredIds, setStarredIds] = useState(() => {
     if (typeof window !== "undefined") {
@@ -81,19 +89,19 @@ export function CandidatesProvider({ children }) {
     return Array.from(skillSet).sort();
   }, [candidates]);
 
-  // 1. Process candidate scores based on JD parameters
+  // 1. Process candidate scores based on JD parameters & scoring weights
   const allCandidates = useMemo(() => {
     const reqSet = new Set(requiredSkills.map(s => s.toLowerCase()));
     const prefSet = new Set(preferredSkills.map(s => s.toLowerCase()));
 
     return candidates.map(cand => {
-      const breakdown = scoreCandidate(cand, reqSet, prefSet, minJobExp);
+      const breakdown = scoreCandidate(cand, reqSet, prefSet, minJobExp, scoreWeights);
       return {
         ...cand,
         scoreBreakdown: breakdown
       };
     });
-  }, [candidates, requiredSkills, preferredSkills, minJobExp]);
+  }, [candidates, requiredSkills, preferredSkills, minJobExp, scoreWeights]);
 
   // 2. Apply filters to candidates
   const filteredCandidates = useMemo(() => {
@@ -332,7 +340,9 @@ export function CandidatesProvider({ children }) {
       setSortBy,
       sortOrder,
       setSortOrder,
-      availableSkills
+      availableSkills,
+      scoreWeights,
+      setScoreWeights
     }}>
       {children}
     </CandidatesContext.Provider>

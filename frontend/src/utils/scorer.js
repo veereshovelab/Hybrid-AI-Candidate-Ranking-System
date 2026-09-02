@@ -44,7 +44,8 @@ export function scoreCandidate(
   candidate,
   requiredSkills,
   preferredSkills,
-  minExp = 5
+  minExp = 5,
+  weights = { skill: 40, exp: 20, career: 20, behavioral: 20 }
 ) {
   const profile = candidate.profile;
   const rawSkills = candidate.skills;
@@ -334,12 +335,17 @@ export function scoreCandidate(
     }
   }
 
-  // 7. Calculate final score
+  // 7. Calculate final score using dynamic weights
+  const wSkill = (weights?.skill ?? 40) / 100.0;
+  const wExp = (weights?.exp ?? 20) / 100.0;
+  const wCareer = (weights?.career ?? 20) / 100.0;
+  const wBehavioral = (weights?.behavioral ?? 20) / 100.0;
+
   const weightedScore = (
-    (skillMatch * 0.40) +
-    (expMatch * 0.20) +
-    (careerRelevance * 0.20) +
-    (behavioralScore * 0.20)
+    (skillMatch * wSkill) +
+    (expMatch * wExp) +
+    (careerRelevance * wCareer) +
+    (behavioralScore * wBehavioral)
   );
   
   const finalScore = Math.max(0.0, Math.min(100.0, weightedScore - penaltyTotal));
