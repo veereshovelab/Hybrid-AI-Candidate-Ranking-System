@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -30,7 +30,8 @@ import {
   Zap,
   Award,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  Check
 } from "lucide-react";
 import { useCandidates } from "@/hooks/use-candidates";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -73,7 +74,8 @@ export default function Rankings() {
     setSortOrder
   } = useCandidates();
 
-  // Selected candidates for side-by-side comparison
+  // Selected candidates for bulk actions & side-by-side comparison
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
   const [selectedForCompare, setSelectedForCompare] = useState([]);
   // Quick View Modal Candidate
   const [quickViewCandidate, setQuickViewCandidate] = useState(null);
@@ -84,10 +86,49 @@ export default function Rankings() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Auto reset pagination page index when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, locationQuery, minExperience, selectedSkills, openToWorkOnly, willingToRelocateOnly, starredOnly, maxNoticePeriod, maxSalary, sortBy, sortOrder]);
+
   const totalPages = Math.ceil(filteredCandidates.length / pageSize) || 1;
   const validPage = Math.min(Math.max(1, currentPage), totalPages);
   const startIndex = (validPage - 1) * pageSize;
   const paginatedCandidates = filteredCandidates.slice(startIndex, startIndex + pageSize);
+
+  const toggleCandidateSelect = (candidateId) => {
+    setSelectedCandidateIds(prev =>
+      prev.includes(candidateId) ? prev.filter(id => id !== candidateId) : [...prev, candidateId]
+    );
+  };
+
+  const handleToggleSelectAllPage = () => {
+    const pageIds = paginatedCandidates.map(c => c.candidate_id);
+    const allSelected = pageIds.every(id => selectedCandidateIds.includes(id));
+    if (allSelected) {
+      setSelectedCandidateIds(prev => prev.filter(id => !pageIds.includes(id)));
+    } else {
+      setSelectedCandidateIds(prev => Array.from(new Set([...prev, ...pageIds])));
+    }
+  };
+
+  const handleBulkStar = () => {
+    selectedCandidateIds.forEach(id => {
+      if (!isCandidateStarred(id)) {
+        toggleStarCandidate(id);
+      }
+    });
+  };
+
+  const handleBulkExportCSV = () => {
+    const list = filteredCandidates.filter(c => selectedCandidateIds.includes(c.candidate_id));
+    exportToCSV(list, `shortlist_selected_${list.length}_candidates.csv`);
+  };
+
+  const handleBulkExportJSON = () => {
+    const list = filteredCandidates.filter(c => selectedCandidateIds.includes(c.candidate_id));
+    exportToJSON(list, `shortlist_selected_${list.length}_candidates.json`);
+  };
 
   const toggleCompareSelect = (candidateId) => {
     setSelectedForCompare(prev => {
@@ -624,20 +665,14 @@ export default function Rankings() {
                         <th className="py-3.5 px-3 w-10 text-center">
                           <Star className="h-3.5 w-3.5 text-muted-foreground mx-auto" />
                         </th>
-                        {/* Compare Selection Checkbox */}
+                        {/* Select All on Page Checkbox */}
                         <th className="py-3.5 px-3 w-10 text-center">
                           <input
                             type="checkbox"
-                            checked={selectedForCompare.length > 0 && selectedForCompare.length === Math.min(3, filteredCandidates.length)}
-                            onChange={() => {
-                              if (selectedForCompare.length > 0) {
-                                setSelectedForCompare([]);
-                              } else {
-                                setSelectedForCompare(filteredCandidates.slice(0, 3).map(c => c.candidate_id));
-                              }
-                            }}
-                            className="h-3.5 w-3.5 rounded bg-slate-950 border-border accent-primary cursor-pointer"
-                            title="Toggle select top 3 candidates for comparison"
+                            checked={paginatedCandidates.length > 0 && paginatedCandidates.every(c => selectedCandidateIds.includes(c.candidate_id))}
+                            onChange={handleToggleSelectAllPage}
+                            className="h-3.5 w-3.5 rounded bg-slate-950 border-slate-700 accent-indigo-500 cursor-pointer"
+                            title="Select / deselect all candidates on current page"
                           />
                         </th>
                         {/* Headers with Sort controls */}
@@ -667,11 +702,12 @@ export default function Rankings() {
                         const score = cand.scoreBreakdown.final_score;
                         const flags = cand.scoreBreakdown.flags;
                         const isHoneypotTriggered = cand.scoreBreakdown.penalty_total >= 100;
-                        const isSelected = selectedForCompare.includes(cand.candidate_id);
+                        const isSelectedForCompare = selectedForCompare.includes(cand.candidate_id);
+                        const isMultiSelected = selectedCandidateIds.includes(cand.candidate_id);
                         const isStarred = isCandidateStarred(cand.candidate_id);
 
                         return (
-                          <tr key={cand.candidate_id} className={`hover:bg-slate-900/35 transition-colors group ${isSelected ? "bg-primary/5" : ""}`}>
+                          <tr key={cand.candidate_id} className={`hover:bg-slate-900/35 transition-colors group ${isMultiSelected ? "bg-indigo-500/10" : isSelectedForCompare ? "bg-primary/5" : ""}`}>
                             
                             {/* Star Toggle */}
                             <td className="py-4 px-3 text-center">
@@ -684,14 +720,14 @@ export default function Rankings() {
                               </button>
                             </td>
 
-                            {/* Compare Checkbox */}
+                            {/* Multi-Select Checkbox */}
                             <td className="py-4 px-3 text-center">
                               <input
                                 type="checkbox"
-                                checked={isSelected}
-                                onChange={() => toggleCompareSelect(cand.candidate_id)}
-                                className="h-4 w-4 rounded bg-slate-950 border-border accent-primary focus:ring-0 cursor-pointer"
-                                title="Select for side-by-side comparison"
+                                checked={isMultiSelected}
+                                onChange={() => toggleCandidateSelect(cand.candidate_id)}
+                                className="h-4 w-4 rounded bg-slate-950 border-slate-700 accent-indigo-500 cursor-pointer"
+                                title="Select candidate for bulk export, star, or comparison"
                               />
                             </td>
 
@@ -879,6 +915,74 @@ export default function Rankings() {
           isStarred={isCandidateStarred(quickViewCandidate.candidate_id)}
           onToggleStar={toggleStarCandidate}
         />
+      )}
+
+      {/* Floating Bulk Action Toolbar */}
+      {selectedCandidateIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 border border-indigo-500/40 rounded-2xl p-3 px-5 shadow-2xl backdrop-blur-xl flex items-center space-x-4 animate-fade-in text-xs">
+          <div className="flex items-center space-x-2 border-r border-slate-700/60 pr-3">
+            <Badge variant="cyan" className="font-mono text-xs font-bold">
+              {selectedCandidateIds.length} Selected
+            </Badge>
+            <span className="text-slate-200 font-semibold">Bulk Actions:</span>
+          </div>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleBulkStar}
+            className="h-8 text-xs flex items-center gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+          >
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            Star All
+          </Button>
+
+          {selectedCandidateIds.length >= 2 && selectedCandidateIds.length <= 3 && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => {
+                const params = new URLSearchParams();
+                params.set("c1", selectedCandidateIds[0]);
+                params.set("c2", selectedCandidateIds[1]);
+                if (selectedCandidateIds[2]) params.set("c3", selectedCandidateIds[2]);
+                router.push(`/compare?${params.toString()}`);
+              }}
+              className="h-8 text-xs flex items-center gap-1.5"
+            >
+              <GitCompare className="h-3.5 w-3.5" />
+              Compare ({selectedCandidateIds.length})
+            </Button>
+          )}
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleBulkExportCSV}
+            className="h-8 text-xs flex items-center gap-1.5 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5" />
+            Export CSV
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleBulkExportJSON}
+            className="h-8 text-xs flex items-center gap-1.5 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+          >
+            <FileCode className="h-3.5 w-3.5" />
+            Export JSON
+          </Button>
+
+          <button
+            onClick={() => setSelectedCandidateIds([])}
+            className="text-slate-400 hover:text-red-400 p-1 transition-colors ml-2"
+            title="Deselect all candidates"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       )}
     </div>
   );
