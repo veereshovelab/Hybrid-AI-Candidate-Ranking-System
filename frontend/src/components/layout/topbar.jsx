@@ -50,38 +50,38 @@ export function Topbar() {
   }, []);
 
   return (
-    <header className="h-16 border-b border-border bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 shrink-0 z-20">
+    <header className="h-16 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl flex items-center justify-between px-8 sticky top-0 shrink-0 z-20">
       {/* Title */}
       <div className="flex items-center space-x-3">
         {pathname.startsWith("/profile") ? (
-          <UserCheck className="h-5 w-5 text-primary" />
+          <UserCheck className="h-5 w-5 text-indigo-400" />
         ) : (
-          <Briefcase className="h-5 w-5 text-primary" />
+          <Briefcase className="h-5 w-5 text-indigo-400" />
         )}
-        <h2 className="text-md font-semibold text-slate-100">{getPageTitle()}</h2>
+        <h2 className="text-md font-bold tracking-tight text-slate-100">{getPageTitle()}</h2>
       </div>
 
       {/* Global Search Bar */}
       <div className="relative w-96">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-indigo-400/70" />
         <input
           ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
-          placeholder="Search by ID, name, headline, company..."
-          className="w-full h-9 pl-10 pr-9 rounded-lg bg-slate-950 border border-border text-xs text-slate-200 placeholder-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/40 transition-all duration-200"
+          placeholder="Search candidate ID, skills, company..."
+          className="w-full h-9 pl-10 pr-9 rounded-xl bg-slate-900/90 border border-slate-700/70 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500/80 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
         />
         {searchQuery ? (
           <button
             onClick={() => setSearchQuery("")}
-            className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-slate-200 transition-colors"
+            className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-200 transition-colors"
             title="Clear search"
           >
             <X className="h-3.5 w-3.5" />
           </button>
         ) : (
-          <kbd className="absolute right-2.5 top-2.5 hidden sm:inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-mono text-muted-foreground bg-slate-900 border border-border/60 rounded pointer-events-none opacity-80">
+          <kbd className="absolute right-2.5 top-2.5 hidden sm:inline-flex items-center justify-center h-4 px-1.5 text-[10px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700/80 rounded pointer-events-none opacity-80">
             /
           </kbd>
         )}
@@ -91,11 +91,11 @@ export function Topbar() {
       <div className="flex items-center space-x-4">
         <div className="flex flex-col items-end">
           <div className="flex items-center space-x-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-warning fill-warning/20" />
-            <span className="text-xs font-semibold text-slate-100">Senior AI Engineer JD</span>
+            <Sparkles className="h-3.5 w-3.5 text-amber-400 fill-amber-400/20" />
+            <span className="text-xs font-bold text-slate-100">Senior AI Engineer JD</span>
           </div>
-          <span className="text-[10px] text-muted-foreground font-mono">
-            {filteredCandidates.length} matched / {allCandidates.length} samples
+          <span className="text-[10px] text-indigo-300/70 font-mono">
+            {filteredCandidates.length} matched / {allCandidates.length} candidates
           </span>
         </div>
 
@@ -104,15 +104,15 @@ export function Topbar() {
           href="/profile" 
           className={`relative group flex items-center justify-center p-0.5 rounded-full transition-all duration-200 ${
             pathname.startsWith("/profile") 
-              ? "ring-2 ring-primary ring-offset-2 ring-offset-slate-900" 
-              : "hover:scale-105 hover:ring-1 hover:ring-primary/50"
+              ? "ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950" 
+              : "hover:scale-105 hover:ring-1 hover:ring-indigo-400/60"
           }`}
           title="Open HR Recruiter Profile"
         >
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-600/30 border border-primary/40 flex items-center justify-center text-xs font-bold text-slate-100 shadow-sm">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 border border-indigo-400/40 flex items-center justify-center text-xs font-bold text-white shadow-md shadow-indigo-500/20">
             HR
           </div>
-          <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-success border-2 border-slate-900" />
+          <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-slate-950" />
         </Link>
       </div>
     </header>

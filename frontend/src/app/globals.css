@@ -1,62 +1,105 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0f172a;
+  --color-background: #080c14;
   --color-foreground: #f8fafc;
-  --color-card: #1e293b;
+  --color-card: #0f172a;
   --color-card-foreground: #f1f5f9;
-  --color-primary: #3b82f6;
+  --color-primary: #6366f1;
   --color-primary-foreground: #ffffff;
-  --color-success: #22c55e;
+  --color-accent: #06b6d4;
+  --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-border: #334155;
-  --color-muted: #64748b;
+  --color-danger: #ef4444;
+  --color-border: #1e293b;
+  --color-muted: #475569;
   --color-muted-foreground: #94a3b8;
 
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 body {
   background-color: var(--color-background);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
   color: var(--color-foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar for premium feel */
+/* Custom Scrollbar with Indigo-Cyan Gradient Accent */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: #080c14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: #1e293b;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: linear-gradient(180deg, #6366f1, #06b6d4);
 }
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 12px 40px -10px rgba(99, 102, 241, 0.15);
+}
+
+/* Gradient Text Utilities */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #a5b4fc 0%, #38bdf8 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glow utilities */
+.glow-primary {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
 }
 
 /* Pulse keyframes for AI processing glow */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
   }
   50% {
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.45);
   }
 }
 
@@ -77,8 +120,8 @@ body {
 
 @keyframes laser-scan {
   0% { top: 0%; opacity: 0; }
-  30% { opacity: 0.9; }
-  70% { opacity: 0.9; }
+  30% { opacity: 0.95; }
+  70% { opacity: 0.95; }
   100% { top: 100%; opacity: 0; }
 }
 
@@ -116,7 +159,7 @@ body {
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background-color: #1e293b;
+  background-color: #0f172a;
 }
 
 .skeleton-shimmer::after {
@@ -129,9 +172,9 @@ body {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(59, 130, 246, 0.08) 20%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(59, 130, 246, 0.08) 80%,
+    rgba(99, 102, 241, 0.12) 20%,
+    rgba(6, 182, 212, 0.2) 50%,
+    rgba(99, 102, 241, 0.12) 80%,
     rgba(255, 255, 255, 0) 100%
   );
   animation: shimmer 1.8s infinite;

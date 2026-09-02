@@ -5,8 +5,8 @@ export function Card({ className, hoverEffect = false, ...props }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-lg transition-all duration-300",
-        hoverEffect && "hover:border-primary/50 hover:shadow-primary/5 hover:translate-y-[-2px]",
+        "rounded-2xl border border-slate-800/80 bg-slate-900/80 text-card-foreground shadow-xl backdrop-blur-md transition-all duration-300",
+        hoverEffect && "hover:border-indigo-500/40 hover:shadow-indigo-500/10 hover:translate-y-[-2px]",
         className
       )}
       {...props}

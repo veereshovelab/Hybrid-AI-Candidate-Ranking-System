@@ -191,19 +191,19 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-border flex flex-col justify-between h-screen sticky top-0 shrink-0 z-30">
+    <aside className="w-64 bg-slate-950/80 border-r border-slate-800/80 flex flex-col justify-between h-screen sticky top-0 shrink-0 z-30 backdrop-blur-xl">
       {/* Upper Section */}
       <div className="flex flex-col flex-1 py-6 px-4">
         {/* Brand/Logo */}
         <div className="flex items-center space-x-3 px-3 mb-8">
-          <div className="bg-primary/20 p-2 rounded-lg text-primary border border-primary/30 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-indigo-500 to-cyan-500 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center">
             <Zap className="h-5 w-5 fill-current" />
           </div>
           <div>
             <h1 className="text-md font-bold tracking-tight text-slate-100 flex items-center gap-1.5">
-              HYBRID <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/20">AI</span>
+              HYBRID <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-mono font-bold shadow-sm">AI</span>
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono">CANDIDATE RANKING</p>
+            <p className="text-[9px] text-indigo-300/70 font-mono tracking-wider">CANDIDATE RANKING</p>
           </div>
         </div>
 
@@ -218,15 +218,15 @@ export function Sidebar() {
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+                  "flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group",
                   isActive
-                    ? "bg-slate-800 text-slate-100 border border-slate-700/50 shadow-inner"
-                    : "text-muted-foreground hover:bg-slate-800/40 hover:text-slate-200 hover:translate-x-[2px]"
+                    ? "bg-gradient-to-r from-indigo-600/30 via-indigo-600/20 to-cyan-500/10 text-slate-100 border border-indigo-500/40 shadow-sm shadow-indigo-500/10"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 hover:translate-x-[2px]"
                 )}
               >
                 <Icon className={cn(
                   "h-4 w-4 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-slate-300"
+                  isActive ? "text-indigo-400" : "text-slate-400 group-hover:text-slate-200"
                 )} />
                 <div className="flex flex-col">
                   <span className="font-medium">{item.name}</span>
@@ -272,7 +272,7 @@ export function Sidebar() {
           />
           <button
             onClick={triggerFileSelect}
-            className="w-full h-8 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold cursor-pointer transition-all duration-200 active:scale-95"
+            className="w-full h-8.5 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-md shadow-indigo-500/20 border border-indigo-400/30 cursor-pointer transition-all duration-200 active:scale-95"
           >
             <Upload className="h-3.5 w-3.5" />
             Upload Dataset (.json/.jsonl)
