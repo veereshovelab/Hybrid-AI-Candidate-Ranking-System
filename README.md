@@ -1,5 +1,11 @@
 # Hybrid AI Candidate Ranking System
- 
+
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)
+
 A premium end-to-end candidate ranking and discovery system. It features a Python backend data processing pipeline for evaluating candidate qualifications against job descriptions and a Next.js frontend application for visualizing, filtering, and managing ranked candidates.
 
 ---
@@ -95,3 +101,12 @@ python backend/src/main.py --candidates backend/data/candidates.jsonl --output b
 - `--jd`: Path to custom job description text file (optional)
 - `--output`: Path to write the output CSV (default: `backend/outputs/submission.csv`)
 - `--top-k`: Number of top candidates to export (default: `100`)
+
+---
+
+## 🛠️ Contributing & Development Guidelines
+
+1. **Branch Naming**: Use descriptive branch names like `feature/candidate-filter` or `fix/ranking-formula`.
+2. **Commit Messages**: Follow standard conventions (e.g. `feat: add export button`, `fix: update calculation threshold`).
+3. **Pull Requests**: Ensure tests pass and the pipeline executes without errors before submitting PRs.
+
