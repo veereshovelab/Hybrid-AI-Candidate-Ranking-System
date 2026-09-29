@@ -72,8 +72,6 @@ class CandidateLoader(BaseCandidateLoader):
                         yield candidate
                 except json.JSONDecodeError as e:
                     logger.warning(f"Skipping malformed JSON line {line_idx} in {file_path}: {e}")
-                except Exception as e:
-                    logger.error(f"Unexpected error parsing line {line_idx} in {file_path}: {e}")
 
     def _load_json(self, file_path: Path) -> Generator[Dict[str, Any], None, None]:
         """
