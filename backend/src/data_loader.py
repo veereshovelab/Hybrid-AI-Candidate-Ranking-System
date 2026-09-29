@@ -114,8 +114,11 @@ class CandidateLoader(BaseCandidateLoader):
             logger.warning(f"Candidate entry at index {index} is not a JSON object, skipping.")
             return False
 
-        if "candidate_id" not in candidate:
-            logger.warning(f"Candidate entry at index {index} is missing 'candidate_id', skipping.")
+        candidate_id = candidate.get("candidate_id")
+        if not isinstance(candidate_id, str) or not candidate_id.strip():
+            logger.warning(
+                f"Candidate entry at index {index} has an invalid 'candidate_id', skipping."
+            )
             return False
 
         # Ensure profile dictionary exists
