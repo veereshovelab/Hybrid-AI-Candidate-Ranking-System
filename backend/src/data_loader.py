@@ -46,9 +46,9 @@ class CandidateLoader(BaseCandidateLoader):
             Dict[str, Any]: A candidate profile dictionary.
         """
         path = Path(file_path)
-        if not path.exists():
+        if not path.is_file():
             logger.error(f"Candidate file not found: {file_path}")
-            raise FileNotFoundError(f"File not found: {file_path}")
+            raise FileNotFoundError(f"Candidate file not found: {file_path}")
             
         # Determine loader type based on extension
         if path.suffix.lower() == ".jsonl":
